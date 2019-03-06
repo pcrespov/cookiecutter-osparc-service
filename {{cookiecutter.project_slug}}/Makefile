@@ -60,7 +60,7 @@ up: .env down
 	${DOCKER_COMPOSE} -f docker-compose.yml up
 
 down:
-${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yaml down
+	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yaml down;\
 	${DOCKER_COMPOSE} -f docker-compose.yml down
 
 .PHONY: push-release push-staging
