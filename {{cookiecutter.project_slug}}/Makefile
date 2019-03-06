@@ -49,24 +49,17 @@ ifdef tools
 endif
 
 
-.PHONY: build build-devel
+.PHONY: build
 # target: build, build-devel: – Builds all service images.
-build:
+build: update_compose_labels
 	${DOCKER_COMPOSE} -f docker-compose.yml build --parallel
 
-build-devel:
-	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yaml build --parallel
-
-.PHONY: up up-devel down
+.PHONY: up down
 # target: up, up-devel, down: – Starts/Stops services.
-up-devel: .env down
-	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yaml up
-
 up: .env down
 	${DOCKER_COMPOSE} -f docker-compose.yml up
 
 down:
-	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yaml down;\
 	${DOCKER_COMPOSE} -f docker-compose.yml down
 
 .PHONY: push-release push-staging
@@ -99,6 +92,9 @@ push-staging:
 		diff -uN $@ $<; \
 		false; \
 	fi
+
+update_compose_labels:
+	python3 tools/update_compose_labels.py --compose docker-compose.yml --input docker/labels
 
 .PHONY: info
 # target: info – Displays some parameters of makefile environments
