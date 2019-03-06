@@ -28,7 +28,7 @@ def stringify_folder(folder: Path) -> Dict:
 
 
 def update_compose_labels(compose_cfg: Dict, json_labels: Dict) -> bool:
-  compose_labels = compose_cfg["services"]["{{ cookiecutter..project_slug }}"]["build"]["labels"]
+  compose_labels = compose_cfg["services"]["{{ cookiecutter.project_slug }}"]["build"]["labels"]
   changed = False
   for json_key, json_value in json_labels:
     if json_key in compose_labels:
