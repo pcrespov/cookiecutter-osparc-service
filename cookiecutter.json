@@ -5,15 +5,14 @@
     "contact_email": "{{ cookiecutter.author_email }}",
     "project_name": "Name of the project",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
+    "project_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
     "project_short_description": "A short description of the project",
     "project_type": [
-        "computational",
-        "dynamic"
+        "computational"
     ],
     "number_of_inputs":2,
     "number_of_outputs":1,
-
-    "github_username": "Your github username",
+    "github_username": "Yourusername",
     "release_date": "{% now 'utc', '%Y' %}",
     "version": "0.1.0",
     "_extensions": [
