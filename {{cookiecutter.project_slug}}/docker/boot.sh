@@ -15,14 +15,13 @@ then
 
 elif [[ ${SC_BUILD_TARGET} == "production" ]]
 then
-
+  echo "Target is ${SC_BUILD_TARGET}"
 fi
 
 
 # RUNNING application ----------------------------------------
 if [[ ${BOOT_MODE} == "debug" ]]
 then
-  echo "Debugger attached: https://docs.python.org/3.6/library/pdb.html#debugger-commands  ..."
-
+  echo "debuging..."
 else
 fi

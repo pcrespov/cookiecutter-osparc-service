@@ -6,7 +6,7 @@ FROM alpine as base
 #     docker run {{ cookiecutter.project_slug }}:prod
 #
 
-LABEL maintainer={{ cookiecutter.github_username }}
+LABEL maintainer={{ cookiecutter.git_username }}
 
 # simcore-user uid=8004(scu) gid=8004(scu) groups=8004(scu)
 RUN adduser -D -u 8004 -s /bin/sh -h /home/scu scu
@@ -33,7 +33,7 @@ ENV SC_BUILD_TARGET build
 
 WORKDIR /build
 # defines the output of the build
-VOLUME /build/bin
+RUN mkdir -p /build/bin
 # copy src code
 COPY  src/{{ cookiecutter.project_package_name }} src/{{ cookiecutter.project_package_name }}
 # uncomment and adapt if build steps are necessary

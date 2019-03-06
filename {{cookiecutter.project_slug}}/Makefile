@@ -19,6 +19,12 @@ export DOCKER_COMPOSE=docker-compose
 export DOCKER=docker
 endif
 
+export VCS_URL:=$(shell git config --get remote.origin.url)
+export VCS_REF:=$(shell git rev-parse --short HEAD)
+export VCS_STATUS_CLIENT:=$(if $(shell git status -s),'modified/untracked','clean')
+export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+export DOCKER_REGISTRY=masu.speag.com
+
 
 ## Tools ------------------------------------------------------------------------------------------------------
 #
@@ -102,7 +108,7 @@ info:
 	@echo '  - REF                : ${VCS_REF}'
 	@echo '  - (STATUS)REF_CLIENT : (${VCS_STATUS_CLIENT})'
 	@echo '+ BUILD_DATE           : ${BUILD_DATE}'
-	@echo '+ VERSION              : ${VERSION}'
+	@echo '+ OS_VERSION           : ${OS_VERSION}'
 	@echo '+ DOCKER_REGISTRY      : ${DOCKER_REGISTRY}'
 
 
