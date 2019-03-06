@@ -1,13 +1,17 @@
 {
     "outputs": {
-        "out_1": {
-            "displayOrder": 1,
-            "label": "Output",
-            "description": "Output",
-            "type": "data:*/*",
+        {% for i in range(cookiecutter.number_of_outputs|int) %}
+        {%- if i > 0 -%},{%- endif %}
+        "output_{{ i+1 }}": {
+            "displayOrder": {{ i+1 }},
+            "label": "output_{{ i+1 }}_label",
+            "description": "The input {{ i+1 }} description",
+            "type": "Any type from [number, integer, boolean, string, data:*/*]",
+            "defaultValue": "some_value(optional)",
             "fileToKeyMap": {
-                "outputController.dat": "out_1"
+                "somefilename.ext":"output_{{ i+1 }}-optional"
             }
         }
+        {% endfor %}
     }
 }

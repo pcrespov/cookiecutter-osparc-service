@@ -1,25 +1,17 @@
 {
     "inputs": {
-        "dt": {
-            "displayOrder": 1,
-            "label": "Timestep",
-            "description": "Timestep",
-            "type": "number",
-            "defaultValue": 0.01
-        },
-        "T": {
-            "displayOrder": 2,
-            "label": "Max. time",
-            "description": "Max. time",
-            "type": "number",
-            "defaultValue": 1000.0
-        },
-        "forcing_factor": {
-            "displayOrder": 3,
-            "label": "forcing_factor",
-            "description": "Sympathetic Efferent Activity Forcing",
-            "type": "number",
-            "defaultValue": 0.0
+        {% for i in range(cookiecutter.number_of_inputs|int) %}
+        {%- if i > 0 -%},{%- endif %}
+        "input_{{ i+1 }}": {
+            "displayOrder": {{ i+1 }},
+            "label": "input_{{ i+1 }}_label",
+            "description": "The input {{ i+1 }} description",
+            "type": "Any type from [number, integer, boolean, string, data:*/*]",
+            "defaultValue": "some_value(optional)",
+            "fileToKeyMap": {
+                "somefilename.ext":"input_{{ i+1 }}-optional"
+            }
         }
+        {% endfor %}
     }
 }
