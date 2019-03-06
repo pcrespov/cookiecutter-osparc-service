@@ -1,0 +1,66 @@
+#!/bin/sh
+
+# This entrypoint script:
+#
+# - Executes *inside* of the container upon start as --user [default root]
+# - Notice that the container *starts* as --user [default root] but
+#   *runs* as non-root user [scu]
+#
+echo "Entrypoint for stage ${SC_BUILD_TARGET} ..."
+echo "  User    :`id $(whoami)`"
+echo "  Workdir :`pwd`"
+
+
+if [[ ${SC_BUILD_TARGET} == "development" ]]
+then
+    # NOTE: expects docker run ... -v $(pwd):/devel/services/{{ cookiecutter.project_slug }}
+    DEVEL_MOUNT=/devel/services/{{ cookiecutter.project_slug }}
+
+    stat $DEVEL_MOUNT &> /dev/null || \
+        (echo "ERROR: You must mount '$DEVEL_MOUNT' to deduce user and group ids" && exit 1) # FIXME: exit does not stop script
+
+    USERID=$(stat -c %u $DEVEL_MOUNT)
+    GROUPID=$(stat -c %g $DEVEL_MOUNT)
+    GROUPNAME=$(getent group ${GROUPID} | cut -d: -f1)
+
+    if [[ $USERID -eq 0 ]]
+    then
+        addgroup scu root
+    else
+        # take host's credentials in myu
+        if [[ -z "$GROUPNAME" ]]
+        then
+            GROUPNAME=myu
+            addgroup -g $GROUPID $GROUPNAME
+        else
+            addgroup scu $GROUPNAME
+        fi
+
+        deluser scu &> /dev/null
+        adduser -u $USERID -G $GROUPNAME -D -s /bin/sh scu
+    fi
+fi
+
+
+{# TODO: Add option to add access to docker sockets or not #}
+# Appends docker group if socket is mounted
+DOCKER_MOUNT=/var/run/docker.sock
+
+stat $DOCKER_MOUNT &> /dev/null
+if [[ $? -eq 0 ]]
+then
+    GROUPID=$(stat -c %g $DOCKER_MOUNT)
+    {# sometimes the group docker already exists for some reason, so let's create one that has less chances of existing  #}
+    GROUPNAME=scdocker
+
+    addgroup -g $GROUPID $GROUPNAME &> /dev/null
+    if [[ $? -gt 0 ]]
+    then
+        # if group already exists in container, then reuse name
+        GROUPNAME=$(getent group ${GROUPID} | cut -d: -f1)
+    fi
+    addgroup scu $GROUPNAME
+fi
+
+echo "Starting boot ..."
+su-exec scu "$@"
