@@ -5,11 +5,11 @@ Cookicutter to generate a computational service for the simcore platform
 
 Requirements
 ------------
-Install `cookiecutter` command line: `pip install cookiecutter`    
+Install `cookiecutter` command line: `pip install cookiecutter`
 
 Usage
 -----
-Generate a new Cookiecutter template layout: `cookiecutter gh:sanderegg/cookiecutter_simcore_computational_service`    
+Generate a new Cookiecutter template layout: `cookiecutter gh:sanderegg/cookiecutter-simcore-computational-service`
 
 License
 -------
