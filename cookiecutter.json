@@ -10,7 +10,6 @@
         "computational",
         "dynamic"
     ],
-    "project_docker_key": "{{ cookiecutter.project_name.lower().replace(' ', '/') }}",
     "github_username": "Your github username",
     "release_date": "{% now 'utc', '%Y' %}",
     "version": "0.1.0",
