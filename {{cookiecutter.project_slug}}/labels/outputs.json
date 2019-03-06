@@ -1,0 +1,13 @@
+{
+    "outputs": {
+        "out_1": {
+            "displayOrder": 1,
+            "label": "Output",
+            "description": "Output",
+            "type": "data:*/*",
+            "fileToKeyMap": {
+                "outputController.dat": "out_1"
+            }
+        }
+    }
+}

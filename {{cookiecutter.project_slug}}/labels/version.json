@@ -1,0 +1,3 @@
+{
+    "version": "{{ cookiecutter.version }}"
+}

@@ -1,0 +1,9 @@
+{
+    "authors": [
+        {
+            "name": "{{ cookiecutter.author_name }}",
+            "email": "{{ cookiecutter.author_email }}",
+            "affiliation": "{{ cookiecutter.author_affiliation }}"
+        }
+    ]
+}

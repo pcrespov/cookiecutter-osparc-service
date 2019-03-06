@@ -1,0 +1,25 @@
+{
+    "inputs": {
+        "dt": {
+            "displayOrder": 1,
+            "label": "Timestep",
+            "description": "Timestep",
+            "type": "number",
+            "defaultValue": 0.01
+        },
+        "T": {
+            "displayOrder": 2,
+            "label": "Max. time",
+            "description": "Max. time",
+            "type": "number",
+            "defaultValue": 1000.0
+        },
+        "forcing_factor": {
+            "displayOrder": 3,
+            "label": "forcing_factor",
+            "description": "Sympathetic Efferent Activity Forcing",
+            "type": "number",
+            "defaultValue": 0.0
+        }
+    }
+}
