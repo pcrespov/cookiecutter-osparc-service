@@ -1,0 +1,12 @@
+cookiecutter~=1.6
+
+# linter
+pylint~=2.0
+
+# testing
+pytest~=4.0
+pytest-cookies~=0.3
+
+# package management
+yolk3k              # obtains info about installed packages or available in PyPi
+semantic_version    # check compatibility versioning
