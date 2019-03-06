@@ -1,5 +1,5 @@
 {
-    "author_name": "Your name",
+    "author_name": "Your full name",
     "author_email": "Your address email (eq. you@example.com)",
     "author_affiliation": "University of Anywhere, Department of something",
     "contact_email": "{{ cookiecutter.author_email }}",
@@ -13,6 +13,7 @@
     "number_of_inputs":2,
     "number_of_outputs":1,
     "github_username": "Yourusername",
+    "project_github_repo": "https://github.com/yourrepo",
     "release_date": "{% now 'utc', '%Y' %}",
     "version": "0.1.0",
     "_extensions": [
