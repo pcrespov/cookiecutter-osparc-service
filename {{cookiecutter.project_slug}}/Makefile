@@ -94,6 +94,7 @@ push-staging:
 	fi
 
 update_compose_labels:
+	pip install -r tools/requirements.txt
 	python3 tools/update_compose_labels.py --compose docker-compose.yml --input docker/labels
 
 .PHONY: info
