@@ -13,6 +13,7 @@ from typing import Dict
 import yaml
 
 log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 def get_compose_file(compose_file: Path) -> Dict:
     with compose_file.open() as fp:
