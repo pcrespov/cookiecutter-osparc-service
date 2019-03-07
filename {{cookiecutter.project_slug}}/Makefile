@@ -50,12 +50,12 @@ endif
 
 
 .PHONY: build
-# target: build, build-devel: – Builds all service images.
+# target: build: – Builds all service images.
 build: update_compose_labels
 	${DOCKER_COMPOSE} -f docker-compose.yml build --parallel
 
 .PHONY: up down
-# target: up, up-devel, down: – Starts/Stops services.
+# target: up, down: – Starts/Stops services.
 up: .env down
 	${DOCKER_COMPOSE} -f docker-compose.yml up
 
