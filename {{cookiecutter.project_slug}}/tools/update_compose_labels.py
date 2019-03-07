@@ -53,12 +53,12 @@ if __name__ == "__main__":
   options = parser.parse_args(args)
 
   try:
-    log.info("Testing if {} needs updates using labels in {}", options.compose, options.input)
+    log.info("Testing if %s needs updates using labels in %s", options.compose, options.input)
     # get available jsons
     compose_cfg = get_compose_file(options.compose)
     json_labels = stringify_folder(options.input)
     if update_compose_labels(compose_cfg, json_labels):
-      log.info("Updating {} using labels in {}", options.compose, options.input)
+      log.info("Updating %s using labels in %s", options.compose, options.input)
       # write the file back
       with options.compose.open('w') as fp:
         yaml.safe_dump(compose_cfg, fp, default_flow_style=False)
