@@ -16,13 +16,13 @@ def here() -> Path:
 
 @pytest.fixture(scope='session')
 def tests_dir(here: Path) -> Path:
-    tests_dir = here.parent.parent
+    tests_dir = here
     assert tests_dir.exists()
     return tests_dir
 
 @pytest.fixture(scope='session')
 def project_slug_dir(tests_dir: Path) -> Path:
-    project_slug_dir = tests_dir.parent.parent
+    project_slug_dir = tests_dir.parent
     assert project_slug_dir.exists()
     return project_slug_dir
 

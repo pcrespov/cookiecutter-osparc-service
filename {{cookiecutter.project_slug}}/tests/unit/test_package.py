@@ -12,10 +12,10 @@ from pathlib import Path
 import pytest
 
 
-@pytest.fixture
-def pylintrc(root_dir: Path):
-    pylintrcs = list(root_dir.glob("**/.pylintrc"))
-    assert len(pylintrc) > 0
+@pytest.fixture(scope='session')
+def pylintrc(git_root_dir: Path):
+    pylintrcs = list(git_root_dir.glob("**/.pylintrc"))
+    assert len(pylintrcs) > 0
     pylintrc = pylintrcs[0]
     assert pylintrc.exists()
     return pylintrc
