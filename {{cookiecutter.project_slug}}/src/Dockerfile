@@ -96,6 +96,7 @@ COPY --chown=scu:scu docker/*.sh docker/
 {%- if cookiecutter.project_type == "computational" -%}
 # copy simcore cli
 COPY --chown=scu:scu service.cli/ service.cli/
+ENV PATH="/home/scu/service.cli:${PATH}"
 {%- endif -%}
 
 # uncomment and provide a healtchecker if possible
