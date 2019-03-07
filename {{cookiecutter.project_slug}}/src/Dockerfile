@@ -93,11 +93,11 @@ COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
 # copy docker bootup scripts
 COPY --chown=scu:scu docker/*.sh docker/
 
-{%- if cookiecutter.project_type == "computational" -%}
+{%- if cookiecutter.project_type == "computational" %}
 # copy simcore cli
 COPY --chown=scu:scu service.cli/ service.cli/
 ENV PATH="/home/scu/service.cli:${PATH}"
-{%- endif -%}
+{%- endif %}
 
 # uncomment and provide a healtchecker if possible
 # HEALTHCHECK --interval=30s \
