@@ -68,7 +68,6 @@ ENV INPUT_FOLDER "/input" \
     OUTPUT_FOLDER "/output" \
     LOG_FOLDER "/log"
 {%- elif cookiecutter.project_type == "dynamic" -%}
-{%- endif -%}
 ENV SIMCORE_NODE_UUID="-1" \
     SIMCORE_USER_ID="-1" \
     SIMCORE_NODE_BASEPATH="" \
@@ -81,6 +80,8 @@ ENV SIMCORE_NODE_UUID="-1" \
     POSTGRES_USER="-1" \
     POSTGRES_PASSWORD="-1" \
     POSTGRES_DB="-1"
+{%- endif -%}
+
 WORKDIR /home/scu
 
 # uncomment and adapt to install runtime dependencies
