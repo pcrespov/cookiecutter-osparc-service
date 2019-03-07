@@ -63,11 +63,11 @@ FROM base as production
 ENV SC_BUILD_TARGET production
 ENV SC_BOOT_MODE production
 
-{%- if cookiecutter.project_type == "computational" -%} 
-ENV INPUT_FOLDER "/input" \
-    OUTPUT_FOLDER "/output" \
-    LOG_FOLDER "/log"
-{%- elif cookiecutter.project_type == "dynamic" -%}
+{% if cookiecutter.project_type == "computational" %} 
+ENV INPUT_FOLDER="/input" \
+    OUTPUT_FOLDER="/output" \
+    LOG_FOLDER="/log"
+{% elif cookiecutter.project_type == "dynamic" %}
 ENV SIMCORE_NODE_UUID="-1" \
     SIMCORE_USER_ID="-1" \
     SIMCORE_NODE_BASEPATH="" \
