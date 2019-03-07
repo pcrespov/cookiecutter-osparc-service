@@ -21,8 +21,9 @@ def pylintrc(git_root_dir: Path):
     return pylintrc
 
 def test_run_pylint(pylintrc, package_dir):
-    cmd = 'pylint -j 4 --rcfile {} -v {}'.format(pylintrc, package_dir)
-    assert subprocess.check_call(cmd.split()) == 0
+    if list(package_dir.glob("**/*.py")):
+        cmd = 'pylint -j 4 --rcfile {} -v {}'.format(pylintrc, package_dir)
+        assert subprocess.check_call(cmd.split()) == 0
 
 def test_no_pdbs_in_place(package_dir):
     MATCH = re.compile(r'pdb.set_trace()')
