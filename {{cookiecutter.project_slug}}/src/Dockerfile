@@ -19,8 +19,7 @@ RUN apk add --no-cache \
 #
 # + /build             WORKDIR
 #
-{# SEE https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
-#  SEE https://pip.pypa.io/en/stable/reference/pip_install #}
+{# SEE https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management #}
 FROM base as build
 
 ENV SC_BUILD_TARGET build
@@ -64,6 +63,24 @@ FROM base as production
 ENV SC_BUILD_TARGET production
 ENV SC_BOOT_MODE production
 
+{%- if cookiecutter.project_type == "computational" -%} 
+ENV INPUT_FOLDER "/input" \
+    OUTPUT_FOLDER "/output" \
+    LOG_FOLDER "/log"
+{%- elif cookiecutter.project_type == "dynamic" -%}
+{%- endif -%}
+ENV SIMCORE_NODE_UUID="-1" \
+    SIMCORE_USER_ID="-1" \
+    SIMCORE_NODE_BASEPATH="" \
+    STORAGE_ENDPOINT="=1" \
+    S3_ENDPOINT="=1" \
+    S3_ACCESS_KEY="-1" \
+    S3_SECRET_KEY="-1" \
+    S3_BUCKET_NAME="-1" \
+    POSTGRES_ENDPOINT="-1" \
+    POSTGRES_USER="-1" \
+    POSTGRES_PASSWORD="-1" \
+    POSTGRES_DB="-1"
 WORKDIR /home/scu
 
 # uncomment and adapt to install runtime dependencies
@@ -75,6 +92,11 @@ COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
 
 # copy docker bootup scripts
 COPY --chown=scu:scu docker/*.sh docker/
+
+{%- if cookiecutter.project_type == "computational" -%}
+# copy simcore cli
+COPY --chown=scu:scu service.cli/ service.cli/
+{%- endif -%}
 
 # uncomment and provide a healtchecker if possible
 # HEALTHCHECK --interval=30s \
