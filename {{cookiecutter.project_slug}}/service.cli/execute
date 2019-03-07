@@ -2,7 +2,7 @@
 
 # put the code to execute the service here
 # for example
-cd ../{{ cookiecutter.project_package_name }}
+cd {{ cookiecutter.project_package_name }}
 # command_to_execute >> $LOG_FILE
 
 # then retrieve the output and move it to the $OUTPUT_FOLDER
