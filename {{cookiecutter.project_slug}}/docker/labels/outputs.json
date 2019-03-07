@@ -7,7 +7,6 @@
             "label": "output_{{ i+1 }}_label",
             "description": "The input {{ i+1 }} description",
             "type": "data:*/*",
-            "defaultValue": "some_value(optional)",
             "fileToKeyMap": {
                 "somefilename.ext":"output_{{ i+1 }}-optional"
             }
