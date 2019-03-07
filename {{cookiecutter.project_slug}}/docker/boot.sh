@@ -24,4 +24,7 @@ if [[ ${BOOT_MODE} == "debug" ]]
 then
   echo "debuging..."
 else
+  echo "running in release mode..."
 fi
+
+/bin/sh
