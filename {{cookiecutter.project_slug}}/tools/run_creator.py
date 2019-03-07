@@ -32,7 +32,7 @@ if __name__ == "__main__":
         "_json_input=$INPUT_FOLDER/input.json"
         ]
     input_config = get_input_config(options.folder)    
-    for input_key, input_value in input_config.items():
+    for input_key, input_value in input_config["inputs"].items():
         if "data:" in input_value["type"]:
             filename = input_key
             if "fileToKeyMap" in input_value and len(input_value["fileToKeyMap"] > 0):

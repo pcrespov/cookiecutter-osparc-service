@@ -51,7 +51,7 @@ endif
 
 .PHONY: build
 # target: build: – Builds all service images.
-build: update_compose_labels
+build: update_compose_labels update_run_script
 	${DOCKER_COMPOSE} -f docker-compose.yml build --parallel
 
 .PHONY: up down
@@ -108,6 +108,9 @@ push-staging:
 update_compose_labels:
 	pip install -r tools/requirements.txt
 	python3 tools/update_compose_labels.py --compose docker-compose.yml --input docker/labels
+
+update_run_script:
+	python3 tools/run_creator.py --folder docker/labels --runscript service.cli/do_run
 
 .PHONY: info
 # target: info – Displays some parameters of makefile environments
