@@ -6,7 +6,7 @@
     "project_name": "Name of the project",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
     "project_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
-    "project_short_description": "A short description of the project",
+    "project_short_description": "{{ cookiecutter.project_name }}",
     "project_type": [
         "computational"
     ],
