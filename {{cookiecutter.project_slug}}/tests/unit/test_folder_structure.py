@@ -21,6 +21,7 @@ def test_docker_dir(docker_dir: Path):
 def test_tools_dir(tools_dir: Path):
     assert Path(tools_dir / "requirements.txt").exists()
     assert Path(tools_dir / "update_compose_labels.py").exists()
+    assert Path(tools_dir / "run_creator.py").exists()
 
 def test_package_dir(src_dir: Path):
     assert Path(src_dir / "Dockerfile").exists()
