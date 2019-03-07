@@ -1,0 +1,1 @@
+# this is the test to check whether the container runs correctly using the run command
