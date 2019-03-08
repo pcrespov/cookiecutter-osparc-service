@@ -1,4 +1,5 @@
 #!/bin/bash
+cd $(dirname $0)
 # ----------------------------------------------------------------
 # This script shall be modified according to the needs in order to run the service
 # The inputs defined in docker/inputs.json are available as env variables by their key in capital letters
@@ -7,7 +8,7 @@
 # run -> do_run -> execute
 
 set -e
-cd {{ cookiecutter.project_package_name }}
+cd $HOME/{{ cookiecutter.project_package_name }}
 # put the code to execute the service here
 # and default all outputs to $LOG_FILE
 # For example: java someJavaClass >> $LOG_FILE
