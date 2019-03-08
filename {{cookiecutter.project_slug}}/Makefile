@@ -23,7 +23,11 @@ export VCS_URL:=$(shell git config --get remote.origin.url)
 export VCS_REF:=$(shell git rev-parse --short HEAD)
 export VCS_STATUS_CLIENT:=$(if $(shell git status -s),'modified/untracked','clean')
 export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-export DOCKER_REGISTRY=masu.speag.com
+
+ifndef DOCKER_REGISTRY
+export DOCKER_REGISTRY={{ cookiecutter.default_docker_registry }}
+endif
+
 
 
 ## Tools ------------------------------------------------------------------------------------------------------
@@ -105,6 +109,7 @@ push-staging:
 		false; \
 	fi
 
+.PHONY: update_compose_labels update_run_script
 update_compose_labels:
 	pip install -r tools/requirements.txt
 	python3 tools/update_compose_labels.py --compose docker-compose.yml --input docker/labels
