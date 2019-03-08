@@ -12,7 +12,9 @@ LABEL maintainer={{ cookiecutter.git_username }}
 RUN adduser -D -u 8004 -s /bin/sh -h /home/scu scu
 
 RUN apk add --no-cache \
-      su-exec
+      su-exec \
+      bash \
+      jq
 
 # -------------------------- Build stage -------------------
 # Installs build/package management tools and third party dependencies
@@ -63,7 +65,7 @@ FROM base as production
 ENV SC_BUILD_TARGET production
 ENV SC_BOOT_MODE production
 
-{% if cookiecutter.project_type == "computational" %} 
+{% if cookiecutter.project_type == "computational" %}
 ENV INPUT_FOLDER="/input" \
     OUTPUT_FOLDER="/output" \
     LOG_FOLDER="/log"
