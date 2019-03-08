@@ -2,6 +2,7 @@ version: '3.6'
 services:
   {{ cookiecutter.project_slug }}:
     image: ${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest
+    command: run
     build:
       context: ./
       dockerfile: src/Dockerfile
@@ -11,3 +12,8 @@ services:
         org.label-schema.build-date: "${BUILD_DATE}"
         org.label-schema.vcs-url: {{ cookiecutter.project_git_repo }}
         org.label-schema.vcs-ref: "${VCS_REF}"
+    volumes:
+      # some defaults to test the service
+      - ./validation/input:/input
+      - ./tmp/output:/output
+      - ./tmp/log:/log
