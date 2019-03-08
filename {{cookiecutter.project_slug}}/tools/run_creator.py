@@ -11,11 +11,11 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def get_input_config(folder: Path) -> Dict:    
+def get_input_config(folder: Path) -> Dict:
     with (folder / "inputs.json").open() as fp:
         return json.load(fp)
 
-def get_output_config(folder: Path) -> Dict:    
+def get_output_config(folder: Path) -> Dict:
     with (folder / "outputs.json").open() as fp:
         return json.load(fp)
 
@@ -28,10 +28,10 @@ if __name__ == "__main__":
 
     # generate variables for input
     input_script = [
-        "#!/bin/bash", 
+        "#!/bin/bash",
         "_json_input=$INPUT_FOLDER/input.json"
         ]
-    input_config = get_input_config(options.folder)    
+    input_config = get_input_config(options.folder)
     for input_key, input_value in input_config["inputs"].items():
         if "data:" in input_value["type"]:
             filename = input_key
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     input_script.extend([
         "export LOG_FILE=$LOG_FOLDER/log.dat",
-        "bash $PWD/execute"
+        "bash execute"
     ])
 
     # write shell script
