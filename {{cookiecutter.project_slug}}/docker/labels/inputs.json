@@ -1,6 +1,6 @@
 {
     "inputs": {
-        {% for i in range(cookiecutter.number_of_inputs|int) %}
+        {% for i in range(cookiecutter.number_of_inputs|int) -%}
         {%- if i > 0 -%},{%- endif %}
         "input_{{ i+1 }}": {
             "displayOrder": {{ i+1 }},
@@ -12,6 +12,6 @@
                 "somefilename.ext":"input_{{ i+1 }}"
             }
         }
-        {% endfor %}
+        {%- endfor %}
     }
 }
