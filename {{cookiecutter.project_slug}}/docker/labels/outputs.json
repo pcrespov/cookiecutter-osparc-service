@@ -8,7 +8,7 @@
             "description": "The input {{ i+1 }} description",
             "type": "data:*/*",
             "fileToKeyMap": {
-                "somefilename.ext":"output_{{ i+1 }}-optional"
+                "somefilename.ext":"output_{{ i+1 }}"
             }
         }
         {% endfor %}

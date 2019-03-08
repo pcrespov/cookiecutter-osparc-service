@@ -9,7 +9,7 @@
             "type": "string",
             "defaultValue": "some_value(optional)",
             "fileToKeyMap": {
-                "somefilename.ext":"input_{{ i+1 }}-optional"
+                "somefilename.ext":"input_{{ i+1 }}"
             }
         }
         {% endfor %}
