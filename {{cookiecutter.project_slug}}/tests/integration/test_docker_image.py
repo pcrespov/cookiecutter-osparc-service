@@ -24,7 +24,7 @@ def docker_client() -> docker.DockerClient:
     return docker.from_env()
 
 @pytest.fixture
-def docker_image_key(docker_client) -> str:
+def docker_image_key(docker_client: docker.DockerClient) -> str:
     image_key = "simcore/services/{%- if cookiecutter.project_type == 'computational' -%}comp{%- elif cookiecutter.project_type == 'dynamic' -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest"
     docker_images = [image for image in docker_client.images.list() if any(image_key in tag for tag in image.tags)]
     assert len(docker_images) == 1
@@ -32,12 +32,12 @@ def docker_image_key(docker_client) -> str:
     return docker_images[0].tags[0]
 
 @pytest.fixture
-def docker_image(docker_client, docker_image_key: str) -> docker.models.images.Image:    
+def docker_image(docker_client: docker.DockerClient, docker_image_key: str) -> docker.models.images.Image:
     docker_image = docker_client.images.get(docker_image_key)
     assert docker_image
     return docker_image
 
-def _download_url(url, file: Path):
+def _download_url(url: str, file: Path):
     # Download the file from `url` and save it locally under `file_name`:
     with urllib.request.urlopen(url) as response, file.open('wb') as out_file:
         shutil.copyfileobj(response, out_file)
@@ -66,7 +66,7 @@ def _convert_to_simcore_labels(image_labels: Dict) -> Dict:
     return io_simcore_labels
 
 
-def test_docker_io_simcore_labels_against_files(docker_image: docker.models.images.Image, docker_dir):    
+def test_docker_io_simcore_labels_against_files(docker_image: docker.models.images.Image, docker_dir):
     image_labels = docker_image.labels
     io_simcore_labels = _convert_to_simcore_labels(image_labels)
     # check files are identical
@@ -77,7 +77,7 @@ def test_docker_io_simcore_labels_against_files(docker_image: docker.models.imag
             label_dict = json.load(fp)
             assert key in label_dict
             assert value == label_dict[key]
-            
+
 
 def test_validate_docker_io_simcore_labels(docker_image: docker.models.images.Image, osparc_service_labels_jsonschema: Dict):
     image_labels = docker_image.labels
