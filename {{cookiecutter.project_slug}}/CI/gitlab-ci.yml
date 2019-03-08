@@ -1,0 +1,30 @@
+image: python:3.6-alpine
+before_script:
+  - /bin/sh ops/gitlab/python-alpine/before-script
+
+{{ cookiecutter.project_slug }}-build:
+  stage: build
+  script:
+    - cd models/{{ cookiecutter.project_slug }}; make build; cd;
+
+{{ cookiecutter.project_slug }}-test:
+  stage: test
+  script:
+    - pip install -r models/{{ cookiecutter.project_slug }}/tests/requirements.txt
+    - cd models/{{ cookiecutter.project_slug }}; make unit-test; make integration-test; cd;
+
+{{ cookiecutter.project_slug }}-staging:
+  stage: deploy
+  only:
+    - master
+  script:
+    - echo "$CI_DOCKER_REGISTRY_PASSWORD" | docker login -u "$CI_DOCKER_REGISTRY_USER" --password-stdin $CI_DOCKER_REGISTRY_URL
+    - cd models/{{ cookiecutter.project_slug }}; make push-staging; cd;
+
+{{ cookiecutter.project_slug }}-production:
+  stage: deploy
+  only:
+    - production
+  script:
+    - echo "$CI_DOCKER_REGISTRY_PASSWORD" | docker login -u "$CI_DOCKER_REGISTRY_USER" --password-stdin $CI_DOCKER_REGISTRY_URL
+    - cd models/{{ cookiecutter.project_slug }}; make push-release; cd;
