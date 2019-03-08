@@ -26,19 +26,25 @@ FROM base as build
 
 ENV SC_BUILD_TARGET build
 
+# ------------------------------------------------------------------------------------
+#TODO:
 # uncomment and adapt if build dependencies shall be installed
 #RUN apk add --no-cache gcc git
 
 # uncomment and adapt if python necessary
 #RUN $SC_PIP install --upgrade pip wheel setuptools
+# ------------------------------------------------------------------------------------
 
 WORKDIR /build
 # defines the output of the build
 RUN mkdir -p /build/bin
 # copy src code
 COPY  src/{{ cookiecutter.project_package_name }} src/{{ cookiecutter.project_package_name }}
+# ------------------------------------------------------------------------------------
+#TODO:
 # uncomment and adapt if build steps are necessary
 # RUN gcc ...
+# ------------------------------------------------------------------------------------
 
 # --------------------------Cache stage -------------------
 # CI in master buils & pushes this target to speed-up image build
@@ -87,8 +93,12 @@ ENV SIMCORE_NODE_UUID="-1" \
 
 WORKDIR /home/scu
 
+# ------------------------------------------------------------------------------------
+#TODO:
 # uncomment and adapt to install runtime dependencies
 #RUN apk add --no-cache ffmpeg
+# ------------------------------------------------------------------------------------
+
 # copy binaries from cache
 RUN mkdir -p {{ cookiecutter.project_package_name }} &&\
       chown scu:scu {{ cookiecutter.project_package_name }}
@@ -103,12 +113,15 @@ COPY --chown=scu:scu service.cli/ service.cli/
 ENV PATH="/home/scu/service.cli:${PATH}"
 {%- endif %}
 
+# ------------------------------------------------------------------------------------
+#TODO:
 # uncomment and provide a healtchecker if possible
 # HEALTHCHECK --interval=30s \
 #             --timeout=120s \
 #             --start-period=30s \
 #             --retries=3 \
 #             CMD ["healthchecker app"]
+# ------------------------------------------------------------------------------------
 
 ENTRYPOINT [ "/bin/sh", "docker/entrypoint.sh" ]
 CMD ["/bin/sh", "docker/boot.sh"]
