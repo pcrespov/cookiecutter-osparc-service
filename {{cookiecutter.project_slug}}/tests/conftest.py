@@ -21,6 +21,12 @@ def tests_dir(here: Path) -> Path:
     return tests_dir
 
 @pytest.fixture(scope='session')
+def validation_dir(project_slug_dir: Path) -> Path:
+    validation_dir = project_slug_dir / "validation"
+    assert validation_dir.exists()
+    return validation_dir
+
+@pytest.fixture(scope='session')
 def project_slug_dir(tests_dir: Path) -> Path:
     project_slug_dir = tests_dir.parent
     assert project_slug_dir.exists()
@@ -50,7 +56,7 @@ def package_dir(src_dir: Path) -> Path:
 
 @pytest.fixture(scope='session')
 def git_root_dir(here: Path) -> Path:
-    # find where .git    
+    # find where .git
     root_dir = here
     while root_dir != "/" and not Path(root_dir / ".git").exists():
         root_dir = root_dir.parent
