@@ -29,6 +29,9 @@ if __name__ == "__main__":
     # generate variables for input
     input_script = [
         "#!/bin/bash",
+        "#---------------------------------------------------------------",
+        "# AUTO-GENERATED CODE, do not modify this will be overwritten!!!",
+        "#---------------------------------------------------------------",
         "set -e",
         "_json_input=$INPUT_FOLDER/input.json"
         ]
