@@ -29,6 +29,7 @@ if __name__ == "__main__":
     # generate variables for input
     input_script = [
         "#!/bin/bash",
+        "set -e",
         "_json_input=$INPUT_FOLDER/input.json"
         ]
     input_config = get_input_config(options.folder)
