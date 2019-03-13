@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+set -e
 
 # BOOTING application ---------------------------------------------
 echo "Booting in ${SC_BOOT_MODE} mode ..."

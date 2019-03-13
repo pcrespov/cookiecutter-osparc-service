@@ -1,4 +1,7 @@
 image: python:3.6-alpine
+variables:
+  SC_CI_PYTEST_TMP_NAME: "gitlab_pytest_tmp"
+  SC_CI_PYTEST_TMP: "/gitlab_pytest_tmp"
 before_script:
   - /bin/sh ops/gitlab/python-alpine/before-script
 

@@ -1,10 +1,14 @@
+dist: xenial
 language: python
+addons:
+  apt:
+    packages:
+      - python3
+      - "python3-pip"
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
   - "3.6"
-  - "pypy"
-install: 
-  - "pip install -r requirements-dev.txt"
-script: pytest
+  - "3.7"
+install:
+  - "pip install -r requirements.txt"
+script:
+  - pytest -v -x

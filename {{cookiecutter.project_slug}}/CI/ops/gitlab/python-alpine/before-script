@@ -1,4 +1,12 @@
 #!/bin/sh
+set -e
+
+# check that there is a folder mounted to allow testing
+stat $SC_CI_PYTEST_TMP &> /dev/null || \
+        (echo "ERROR: You must mount '$SC_CI_PYTEST_TMP' in the gitlab runner configuration (add volumes=['$SC_CI_PYTEST_TMP_NAME:$SC_CI_PYTEST_TMP'] in config.toml)." && exit 1)
+
+# ensure there are rights for read & write
+chmod -R g+w $SC_CI_PYTEST_TMP
 
 #---------------------------------------------------------------------
 # install dependencies
@@ -17,4 +25,3 @@ pip3 install \
 
 docker -v
 docker-compose -v
-
