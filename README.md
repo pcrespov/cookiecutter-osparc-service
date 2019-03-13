@@ -5,9 +5,10 @@ Cookicutter to generate an oSparc compatible service for the oSparc simcore plat
 
 Status:
 -------
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/ITISFoundation/osparc-simcore.svg?columns=all)](https://waffle.io/ITISFoundation/osparc-simcore)
-[![Build Status](https://travis-ci.org/ITISFoundation/cookiecutter-osparc-service.svg?branch=master)](https://travis-ci.org/ITISFoundation/cookiecutter-osparc-service)
 Currently only for computational services. Work in progress.
+
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/ITISFoundation/osparc-simcore.svg?columns=all)](https://waffle.io/ITISFoundation/osparc-simcore)
+[![Build Status](https://travis-ci.com/ITISFoundation/cookiecutter-osparc-service.svg?branch=master)](https://travis-ci.com/ITISFoundation/cookiecutter-osparc-service)
 
 
 Requirements
