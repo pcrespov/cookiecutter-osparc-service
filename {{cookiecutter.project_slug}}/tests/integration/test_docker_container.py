@@ -84,17 +84,24 @@ def test_run_container(validation_folders: Dict, host_folders: Dict, docker_clie
             volumes = {_get_gitlab_volume_name(): {'bind': str(_CONTAINER_FOLDER)}}
         else :
             volumes = {host_folders[folder]:{"bind":container_variables["{}_FOLDER".format(str(folder).upper())]} for folder in _FOLDER_NAMES}
-
         container = docker_client.containers.run(docker_image_key,
-            "run", detach=False, remove=False, volumes=volumes, environment=container_variables)
-        container.remove()
+            "run", detach=True, remove=False, volumes=volumes, environment=container_variables)
+        response = container.wait()        
+        if response["StatusCode"] > 0:
+            logs = container.logs(timestamps=True)
+            pytest.fail("The container stopped with exit code {}\n\n\ncommand:\n {}, \n\n\nlog:\n{}".format(response["StatusCode"],
+            "run", pformat(
+                (container.logs(timestamps=True).decode("UTF-8")).split("\n"), width=200
+                )))        
     except docker.errors.ContainerError as exc:
         # the container did not run correctly
         pytest.fail("The container stopped with exit code {}\n\n\ncommand:\n {}, \n\n\nlog:\n{}".format(exc.exit_status,
             exc.command, pformat(
-                (exc.container.logs(timestamps=True).decode("UTF-8")).split("\n"), width=200
+                (container.logs(timestamps=True).decode("UTF-8")).split("\n"), width=200
                 )))
-
+    finally:
+        #cleanup
+        container.remove()
 
     for folder in _FOLDER_NAMES:
         # test if the files that should be there are actually there and correct
