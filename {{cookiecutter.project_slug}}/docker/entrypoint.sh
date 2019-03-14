@@ -42,16 +42,20 @@ GROUPID=$(stat -c %g $INPUT_FOLDER)
 GROUPNAME=$(getent group ${GROUPID} | cut -d: -f1)
 if [[ $USERID -eq 0 ]]
 then
+    echo "Warning: Folder mounted owned by root user... adding $SC_USER_NAME to root..."
     addgroup $SC_USER_NAME root
 else
+    echo "Folder mounted owned by user $USERID:$GROUPID-'$GROUPNAME'..."
     # take host's credentials in $SC_USER_NAME
     if [[ -z "$GROUPNAME" ]]
     then
+        echo "Creating new group my$SC_USER_NAME"
         GROUPNAME=my$SC_USER_NAME
         addgroup -g $GROUPID $GROUPNAME
         # change group property of files already around
         find / -group $SC_USER_ID -exec chgrp -h $GROUPNAME {} \;
     else
+        echo "adding $SC_USER_NAME to group $GROUPNAME..."
         addgroup $SC_USER_NAME $GROUPNAME
     fi
 
