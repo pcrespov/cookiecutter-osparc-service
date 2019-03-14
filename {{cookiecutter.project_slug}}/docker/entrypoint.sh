@@ -47,7 +47,7 @@ else
     # take host's credentials in $SC_USER_NAME
     if [[ -z "$GROUPNAME" ]]
     then
-        GROUPNAME=$SC_USER_NAME
+        GROUPNAME=my$SC_USER_NAME
         addgroup -g $GROUPID $GROUPNAME
         # change group property of files already around
         find / -group $SC_USER_ID -exec chgrp -h $GROUPNAME {} \;
