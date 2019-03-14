@@ -83,7 +83,7 @@ def test_run_container(validation_folders: Dict, host_folders: Dict, docker_clie
             # thus mounted volumes are not valid to the docker host
             volumes = {_get_gitlab_volume_name(): {'bind': str(_CONTAINER_FOLDER)}}
         else :
-            volumes = {host_folders[folder]:{"bind":container_variables[folder]} for folder in _FOLDER_NAMES},
+            volumes = {host_folders[folder]:{"bind":container_variables["{}_FOLDER".format(str(folder).upper())]} for folder in _FOLDER_NAMES}
 
         docker_client.containers.run(docker_image_key,
             "run", detach=False, remove=True, volumes=volumes, environment=container_variables)
