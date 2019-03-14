@@ -85,8 +85,9 @@ def test_run_container(validation_folders: Dict, host_folders: Dict, docker_clie
         else :
             volumes = {host_folders[folder]:{"bind":container_variables["{}_FOLDER".format(str(folder).upper())]} for folder in _FOLDER_NAMES}
 
-        docker_client.containers.run(docker_image_key,
-            "run", detach=False, remove=True, volumes=volumes, environment=container_variables)
+        container = docker_client.containers.run(docker_image_key,
+            "run", detach=False, remove=False, volumes=volumes, environment=container_variables)
+        container.remove()
     except docker.errors.ContainerError as exc:
         # the container did not run correctly
         pytest.fail("The container stopped with exit code {}\n\n\ncommand:\n {}, \n\n\nlog:\n{}".format(exc.exit_status,
