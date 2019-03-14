@@ -19,7 +19,6 @@ stat $OUTPUT_FOLDER &> /dev/null || \
 stat $LOG_FOLDER &> /dev/null || \
     (echo "ERROR: You must mount '$LOG_FOLDER' to deduce user and group ids" && exit 1)
 
-stat $INPUT_FOLDER &> /dev/null
 # NOTE: expects docker run ... -v /path/to/input/folder:$INPUT_FOLDER
 # check input/output/log folders are owned by the same user
 if [[ $(stat -c %u $INPUT_FOLDER) -ne $(stat -c %u $OUTPUT_FOLDER) ]]
