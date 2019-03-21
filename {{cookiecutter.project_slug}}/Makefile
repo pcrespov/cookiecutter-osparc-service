@@ -61,6 +61,8 @@ build: update_compose_labels update_run_script
 .PHONY: up down
 # target: up, down: – Starts/Stops services.
 up: .env down
+	mkdir -p tmp/output
+	mkdir -p tmp/log
 	${DOCKER_COMPOSE} -f docker-compose.yml up
 
 down:
@@ -79,8 +81,37 @@ integration-test:
 	"pytest" -x -v --log-level=warning tests/integration
 
 .PHONY: push-release push-staging
-# target: push: – Pushes services to the registry.
-push-release:
+# target: push-release, push-staging: – Pushes services to the registry if service not available in registry. push-staging overwrites.
+push-release: check-release check-pull push
+
+push-staging: push
+
+check-pull:
+	# check if the service is already online
+	@${DOCKER} login ${DOCKER_REGISTRY};\
+	SERVICE_VERSION=$$(cat VERSION);\
+	${DOCKER} pull \
+		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION; \
+	if [ $$? -eq 0 ] ; then \
+		echo "image already in registry ${DOCKER_REGISTRY}";\
+		false;\
+	else \
+		echo "no image available"; \
+	fi;
+
+check-release:
+	# check if this is a releasable version number. Major shall be > 0
+	@MAJOR_VERSION=$$(cut -f 1 -d '.' VERSION);\
+	echo $$MAJOR_VERSION;\
+	if [ $$MAJOR_VERSION -eq 0 ] ; then \
+		echo "Service major is below 1!!"; \
+		false; \
+	else\
+		echo "Service is releasable";\
+	fi
+
+
+push:
 	${DOCKER} login ${DOCKER_REGISTRY};\
 	SERVICE_VERSION=$$(cat VERSION);\
 	${DOCKER} tag \
@@ -88,14 +119,6 @@ push-release:
 		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;\
 	${DOCKER} push \
 		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;
-
-push-staging:
-	${DOCKER} login ${DOCKER_REGISTRY};\
-	${DOCKER} tag \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:staging-latest;\
-	${DOCKER} push \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:staging-latest;
 
 # basic checks -------------------------------------
 .env: .env-devel

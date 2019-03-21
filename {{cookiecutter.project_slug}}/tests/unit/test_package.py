@@ -14,6 +14,9 @@ import pytest
 
 @pytest.fixture(scope='session')
 def pylintrc(git_root_dir: Path):
+    if not git_root_dir:
+        # we are not in a git repo here...
+        return None
     pylintrcs = list(git_root_dir.glob("**/.pylintrc"))
     assert len(pylintrcs) > 0
     pylintrc = pylintrcs[0]
@@ -22,7 +25,10 @@ def pylintrc(git_root_dir: Path):
 
 def test_run_pylint(pylintrc, package_dir):
     if list(package_dir.glob("**/*.py")):
-        cmd = 'pylint -j 4 --rcfile {} -v {}'.format(pylintrc, package_dir)
+        if pylintrc:
+            cmd = 'pylint -j 4 --rcfile {} -v {}'.format(pylintrc, package_dir)
+        else:
+            cmd = 'pylint -j 4 -v {}'.format(package_dir)
         assert subprocess.check_call(cmd.split()) == 0
 
 def test_no_pdbs_in_place(package_dir):

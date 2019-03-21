@@ -5,6 +5,9 @@ variables:
 before_script:
   - /bin/sh ops/gitlab/python-alpine/before-script
 
+# --------------------------------------------------------------------------------------------
+# ------- {{ cookiecutter.project_slug }}
+# --------------------------------------------------------------------------------------------
 {{ cookiecutter.project_slug }}-build:
   stage: build
   script:

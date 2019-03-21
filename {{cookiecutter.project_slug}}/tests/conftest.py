@@ -58,6 +58,8 @@ def package_dir(src_dir: Path) -> Path:
 def git_root_dir(here: Path) -> Path:
     # find where .git
     root_dir = here
-    while root_dir != "/" and not Path(root_dir / ".git").exists():
+    while root_dir.as_posix() != "/" and not Path(root_dir / ".git").exists():
         root_dir = root_dir.parent
+    if root_dir.as_posix() == "/":
+        return None
     return root_dir
