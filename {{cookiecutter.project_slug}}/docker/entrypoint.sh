@@ -59,7 +59,12 @@ else
         addgroup $SC_USER_NAME $GROUPNAME
     fi
 
+    echo "changing $SC_USER_NAME $SC_USER_ID:$SC_USER_ID to $USERID:$GROUPID"
     deluser $SC_USER_NAME &> /dev/null
+    if [[ "$SC_USER_NAME" == "$GROUPNAME" ]]
+    then
+        addgroup -g $GROUPID $GROUPNAME
+    fi
     adduser -u $USERID -G $GROUPNAME -D -s /bin/sh $SC_USER_NAME
     # change user property of files already around
     find / -user $SC_USER_ID -exec chown -h $SC_USER_NAME {} \;

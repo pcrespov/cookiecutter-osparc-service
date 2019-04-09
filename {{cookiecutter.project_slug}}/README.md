@@ -2,23 +2,12 @@
 
 {{ cookiecutter.project_short_description }}
 
-## Development
+## Structure
 
-1. The source code shall be copied to the [src]({{ cookiecutter.project_slug }}/src/{{ cookiecutter.project_package_name }}) folder.
-2. The [Dockerfile]({{ cookiecutter.project_slug }}/src/Dockerfile) shall be modified to compile the source code.
-3. The [labels]({{ cookiecutter.project_slug }}/docker/labels) json files shall be modified to at least accomodate with the expected inputs/outputs of the service.
-4. The [execute]({{ cookiecutter.project_slug }}/service.cli/execute) bash script shall be modified to run the service using the expected inputs and retrieve the expected outputs and log.
-5. The test input/output/log shall be copied to [validation]({{ cookiecutter.project_slug }}/validation).
-6. The service docker image may be built and tested using:
-
-``` console
-make .venv
-source .venv/bin/activate
-
-(.venv)$ make build
-(.venv)$ make unit-test
-(.venv)$ make integration-test
-```
+- {{ cookiecutter.project_slug }}/
+- {{ cookiecutter.project_slug }}/src
+- {{ cookiecutter.project_slug }}/tests
+- {{ cookiecutter.project_slug }}/validation
 
 ## Usage
 
@@ -26,9 +15,31 @@ Default usage will build the service inside a docker container and then run the 
 Results will be stored in {{ cookiecutter.project_slug }}/tmp/output and logs in {{ cookiecutter.project_slug }}/tmp/log.
 
 ```console
+# activate python virtual env
 make .venv
 source .venv/bin/activate
 
+# to build the project
 (.venv)$ make build
+# to run the project with the validation data as input
 (.venv)$ make up
+
+
+# to run the test suites
+(.venv)$ pip install -r tests/requirements.txt
+(.venv)$ make unit-test
+(.venv)$ make integration-test
+```
+
+## Versioning
+
+Do the following to change the version of the dockerized service
+
+```console
+# activate python virtual env
+make .venv
+source .venv/bin/activate
+
+(.venv)$ pip install bumpversion
+(.venv)$ bumpversion ARG
 ```

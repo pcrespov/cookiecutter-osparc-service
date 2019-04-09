@@ -1,0 +1,6 @@
+{
+    {%- for i in range(cookiecutter.number_of_outputs|int) -%}
+    {%- if i > 0 -%},{%- endif %}
+    "output_{{ i+1 }}": "some_stuff"
+    {%- endfor %}
+}

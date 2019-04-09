@@ -50,7 +50,7 @@ def main(args = None) -> int:
                 filename = input_key
                 if "fileToKeyMap" in input_value and len(input_value["fileToKeyMap"]) > 0:
                     filename,_ = next(iter(input_value["fileToKeyMap"].items()))
-                input_script.append("export {}=$INPUT_FOLDER/{}".format(str(Path(filename).stem).upper(), str(filename)))
+                input_script.append("export {}=$INPUT_FOLDER/{}".format(str(input_key).upper(), str(filename)))
             else:
                 input_script.append("export {}=$(cat $_json_input | jq '.{}')".format(str(input_key).upper(), input_key))
 

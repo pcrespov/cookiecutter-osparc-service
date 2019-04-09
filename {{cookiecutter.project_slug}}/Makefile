@@ -55,18 +55,27 @@ endif
 
 .PHONY: build
 # target: build: – Builds all service images.
-build: update_compose_labels update_run_script
+build: pull update_compose_labels update_run_script
 	${DOCKER_COMPOSE} -f docker-compose.yml build --parallel
 
 .PHONY: up down
 # target: up, down: – Starts/Stops services.
 up: .env down
-	mkdir -p tmp/output
+	@mkdir -p tmp/output
 	mkdir -p tmp/log
 	${DOCKER_COMPOSE} -f docker-compose.yml up
 
 down:
-	${DOCKER_COMPOSE} -f docker-compose.yml down
+	@${DOCKER_COMPOSE} -f docker-compose.yml down
+
+## -------------------------------
+# Development/Debugging.
+.PHONY: up-devel
+# target: up-devel: – Starts service as root and with sources mounted in /home/scu/src for debugging.
+up-devel: .env down
+	@mkdir -p tmp/output
+	mkdir -p tmp/log
+	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yml run {{ cookiecutter.project_slug }}
 
 ## -------------------------------
 # Testing.
@@ -74,17 +83,15 @@ down:
 .PHONY: unit-test integration-test
 # target: unit-test – Runs unit tests [w/ fail fast]
 unit-test:
-	"pytest" -x -v --log-level=warning tests/unit
+	"pytest" -x -v --junitxml=pytest_unittest.xml --log-level=warning tests/unit
 
 # target: integration-test – Runs integration tests [w/ fail fast] (needs built container)
 integration-test:
-	"pytest" -x -v --log-level=warning tests/integration
+	"pytest" -x -v --junitxml=pytest_integrationtest.xml --log-level=warning tests/integration
 
 .PHONY: push-release push-staging
 # target: push-release, push-staging: – Pushes services to the registry if service not available in registry. push-staging overwrites.
 push-release: check-release check-pull push
-
-push-staging: push
 
 check-pull:
 	# check if the service is already online
@@ -112,13 +119,21 @@ check-release:
 
 
 push:
+	# push both latest and :$$SERVICE_VERSION tags
 	${DOCKER} login ${DOCKER_REGISTRY};\
 	SERVICE_VERSION=$$(cat VERSION);\
 	${DOCKER} tag \
 		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest \
 		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;\
 	${DOCKER} push \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;
+		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;\
+	${DOCKER} push \
+		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest;
+
+pull:
+	# pull latest service version if available
+	${DOCKER} pull \
+		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest || true;
 
 # basic checks -------------------------------------
 .env: .env-devel

@@ -27,8 +27,6 @@ def docker_client() -> docker.DockerClient:
 def docker_image_key(docker_client: docker.DockerClient) -> str:
     image_key = "simcore/services/{%- if cookiecutter.project_type == 'computational' -%}comp{%- elif cookiecutter.project_type == 'dynamic' -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest"
     docker_images = [image for image in docker_client.images.list() if any(image_key in tag for tag in image.tags)]
-    assert len(docker_images) == 1
-    assert image_key in docker_images[0].tags[0]
     return docker_images[0].tags[0]
 
 @pytest.fixture
