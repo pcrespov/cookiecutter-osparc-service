@@ -1,11 +1,13 @@
-cookiecutter~=1.6
+Jinja2>=2.10.1      # CVE-2019-10906
+
+cookiecutter
 
 # linter
-pylint~=2.0
+pylint
 
 # testing
-pytest~=4.0
-pytest-cookies~=0.3
+pytest
+pytest-cookies
 
 # package management
 yolk3k              # obtains info about installed packages or available in PyPi

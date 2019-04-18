@@ -81,9 +81,10 @@ venv: $(VENV_DIR)
 .venv: $(VENV_DIR)
 
 
-.PHONY: venv
+.PHONY: requirements
 # target: requirements – Pip compile requirements.in
 requirements: requirements.in
+	@pip install pip-tools
 	@pip-compile -v --output-file requirements.txt requirements.in
 	@touch requirements.txt
 
@@ -112,8 +113,6 @@ clean:
 		"$(CURDIR)/.mypy_cache" \
 		"$(CURDIR)/.pytest_cache"
 	@rm -rf "$(OUTPUT_DIR)"
-	@rm .tmp-*
-
 
 # target: clean-force – cleans & removes also venv folder
 clean-force: clean

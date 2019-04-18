@@ -17,7 +17,7 @@ future==0.17.1            # via cookiecutter
 idna==2.8                 # via requests
 isort==4.3.10             # via pylint
 jinja2-time==0.2.0        # via cookiecutter
-jinja2==2.10              # via cookiecutter, jinja2-time
+jinja2==2.10.1
 lazy-object-proxy==1.3.1  # via astroid
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via pylint
