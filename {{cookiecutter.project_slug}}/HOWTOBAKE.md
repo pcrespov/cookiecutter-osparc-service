@@ -41,5 +41,5 @@ add the following in your __gitlab-ci.yml__ file:
 
 ```yaml
 include:
-  - local: '/models/{{ cookiecutter.project_slug }}/CI/gitlab-ci.yml'
+  - local: '/services/{{ cookiecutter.project_slug }}/CI/gitlab-ci.yml'
 ```
