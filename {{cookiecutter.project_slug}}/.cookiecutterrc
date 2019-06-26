@@ -5,7 +5,7 @@
 # automatically for any template). To use it:
 #
 #    pip install cookiepatcher
-#    cookiepatcher gh:itisfoundation/cookiecutter-simcore-pyservice project-path
+#    cookiepatcher gh:itisfoundation/cookiecutter-osparc-service project-path
 #
 # See:
 #    https://pypi.python.org/pypi/cookiepatcher

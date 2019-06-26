@@ -155,6 +155,11 @@ update_compose_labels:
 update_run_script:
 	python3 tools/run_creator.py --folder docker/labels --runscript service.cli/do_run
 
+.PHONY: regenerate_cookiecutter
+regenerate_cookiecutter:
+	pip install cookiecutter
+	cookiecutter  --no-input --overwrite-if-exists --config-file=.cookiecutterrc gh:ITISFoundation/cookiecutter-osparc-service --output-dir ../
+
 .PHONY: info
 # target: info – Displays some parameters of makefile environments
 info:
