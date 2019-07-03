@@ -1,4 +1,4 @@
-version: '3.6'
+version: '3.7'
 services:
   {{ cookiecutter.project_slug }}:
     # bypass normal start by going directly as root in starting folder

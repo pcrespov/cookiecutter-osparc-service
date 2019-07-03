@@ -1,5 +1,10 @@
 #!/bin/bash
 cd $(dirname $0)
+
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
 # ----------------------------------------------------------------
 # This script shall be modified according to the needs in order to run the service
 # The inputs defined in docker/inputs.json are available as env variables by their key in capital letters
@@ -7,7 +12,6 @@ cd $(dirname $0)
 # call stack:
 # run -> do_run -> execute
 
-set -e
 cd /home/scu/{{ cookiecutter.project_package_name }}
 # put the code to execute the service here
 # and default all outputs to $LOG_FILE

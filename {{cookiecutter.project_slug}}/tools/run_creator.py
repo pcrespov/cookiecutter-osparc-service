@@ -41,7 +41,9 @@ def main(args = None) -> int:
             "#---------------------------------------------------------------",
             "# AUTO-GENERATED CODE, do not modify this will be overwritten!!!",
             "#---------------------------------------------------------------",
-            "set -e",
+            "# http://redsymbol.net/articles/unofficial-bash-strict-mode/",
+            "set -euo pipefail",
+            "IFS=$'\n\t'",
             "_json_input=$INPUT_FOLDER/input.json"
             ]
         input_config = get_input_config(options.folder)

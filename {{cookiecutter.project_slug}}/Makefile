@@ -53,16 +53,18 @@ ifdef tools
 endif
 
 
-.PHONY: build
-# target: build: – Builds all service images.
-build: pull update_compose_labels update_run_script
+.PHONY: build build-devel
+# target: build, build-devel: – Builds all service images. Builds them in devel mode.
+build: update_compose_labels update_run_script
 	${DOCKER_COMPOSE} -f docker-compose.yml build --parallel
+
+build-devel: update_compose_labels update_run_script
+	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yml build --parallel
+
 
 .PHONY: up down
 # target: up, down: – Starts/Stops services.
-up: .env down
-	@mkdir -p tmp/output
-	mkdir -p tmp/log
+up: down .tmp-folder .env
 	${DOCKER_COMPOSE} -f docker-compose.yml up
 
 down:
@@ -72,9 +74,7 @@ down:
 # Development/Debugging.
 .PHONY: up-devel
 # target: up-devel: – Starts service as root and with sources mounted in /home/scu/src for debugging.
-up-devel: .env down
-	@mkdir -p tmp/output
-	mkdir -p tmp/log
+up-devel: down .tmp-folder .env
 	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yml run {{ cookiecutter.project_slug }}
 
 ## -------------------------------
@@ -146,6 +146,12 @@ pull:
 		diff -uN $@ $<; \
 		false; \
 	fi
+
+.PHONY: .tmp-folder
+.tmp-folder:
+	@rm -rf tmp
+	@mkdir -p tmp/output
+	@mkdir -p tmp/log
 
 .PHONY: update_compose_labels update_run_script
 update_compose_labels:
