@@ -1,0 +1,7 @@
+# NOTE: DO NOT MODIFY MANUALLY. Execute make docker-compose-meta.yml instead
+version: '3.7'
+services:
+  {{ cookiecutter.project_slug }}:
+    build:
+      labels: []
+
