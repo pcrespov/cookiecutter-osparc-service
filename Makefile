@@ -9,9 +9,7 @@
 SHELL = /bin/bash
 .DEFAULT_GOAL := help
 
-
-
-OUTPUT_DIR = $(CURDIR)/output
+OUTPUT_DIR = $(CURDIR)/.output
 TEMPLATE = $(CURDIR)
 
 #-----------------------------------
@@ -48,23 +46,24 @@ tests: ## tests backed cookie
 
 $(OUTPUT_DIR):
 	# creating $@
-	@mkdir -p $@/packages
-	@mkdir -p $@/services
+	@mkdir -p $@
 
 define cookiecutterrc =
-$(shell find $(OUTPUT_DIR) -name ".cookiecutterrc" | tail -n 1)
+$(shell find $(OUTPUT_DIR) -name ".cookiecutterrc" 2>/dev/null | tail -n 1 )
 endef
+
 
 play: $(OUTPUT_DIR) ## runs cookiecutter into output folder
 ifeq (,$(cookiecutterrc))
-	# baking cookie $(TEMPLATE) onto $</services
-	@cookiecutter --output-dir "$</services" "$(TEMPLATE)"
+	# baking cookie $(TEMPLATE) onto $<
+	@cookiecutter --output-dir "$<" "$(TEMPLATE)"
 else
 	# replaying cookie-cutter using $(cookiecutterrc)
 	@cookiecutter --no-input -f \
 		--config-file="$(cookiecutterrc)"  \
-		--output-dir="$</services" "$(TEMPLATE)"
+		--output-dir="$<" "$(TEMPLATE)"
 endif
+	@echo "To see generated code, lauch 'code $(wildcard $(OUTPUT_DIR)/*)'"
 
 
 #-----------------------------------
