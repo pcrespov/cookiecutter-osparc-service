@@ -18,7 +18,11 @@ export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
 export DOCKER_IMAGE_NAME?=simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
-export DOCKER_IMAGE_TAG?=$(shell cat VERSION)-$(shell cat {{cookiecutter.project_slug}}/src/{{cookiecutter.project_package_name}}/VERSION)
+
+INTEGRATION_VERSION=$(shell cat VERSION)
+KERNEL_VERSION=$(shell cat src/{{cookiecutter.project_package_name}}/VERSION)
+
+export DOCKER_IMAGE_TAG?=$(KERNEL_VERSION)-$(INTEGRATION_VERSION)
 
 #-----------------------------------
 .PHONY: devenv
@@ -66,6 +70,7 @@ build build-devel: docker-compose.yml service.cli/do_run ## builds images
 	# building image local/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 	@DOCKER_REGISTRY=local; \
 	docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) build --parallel
+	# built local/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 
 
 define show-meta
@@ -92,8 +97,17 @@ tests-unit tests-integration:
 
 tests: tests-unit tests-integration ## runs unit and integration tests
 
-
 #-----------------------------------
+.PHONY: version-patch version-minor version-major
+version-patch version-minor version-major: ## commits integration version as patch (bug fixes not affecting the API), minor/minor (backwards-compatible/INcompatible API addition or changes)
+	# upgrades integration version as $(subst version-,,$@) version, commits and tags
+	@bump2version --verbose  --list $(subst version-,,$@)
+
+
+
+
+## TODO: Review ----------------------------------------
+
 .PHONY: down up up-devel
 
 down: docker-compose.yml
@@ -103,8 +117,6 @@ up up-devel: docker-compose.yml down ## Starts/stops service
 	@docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) up
 
 
-
-#-----------------------------------
 .PHONY: push-release push
 # target: push-release, push: – Pushes services to the registry if service not available in registry. push overwrites.
 push-release: check-release check-pull push
@@ -133,7 +145,6 @@ check-release:
 		echo "Service is releasable";\
 	fi
 
-
 push:
 	# push both latest and :$$SERVICE_VERSION tags
 	${DOCKER} login ${DOCKER_REGISTRY};\
@@ -151,7 +162,7 @@ pull:
 	${DOCKER} pull \
 		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest || true;
 
-
+## TODO: Review above
 
 
 
