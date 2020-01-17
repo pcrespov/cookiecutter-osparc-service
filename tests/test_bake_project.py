@@ -28,12 +28,18 @@ def test_project_tree(cookies):
     assert result.exception is None
     assert result.project.basename == 'test_project'
 
+
+
+
+# TODO: temporary simplified
 def test_run_tests(cookies):
     result = cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry':'test.test.com'})
     working_dir = str(result.project)
     commands = (
         "ls -la .",
-        "make build",
+        "make help",
+        "make devenv",
+        #"source .venv/bin/activate; make build",
         "make info-build",
         ## "make tests"
     )
