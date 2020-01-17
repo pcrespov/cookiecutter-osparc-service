@@ -5,11 +5,14 @@ cookiecutter
 
 # linter
 pylint
+rope
+autopep8
 
 # testing
 pytest
 pytest-cookies
 
 # package management
+pip-tools
 yolk3k              # obtains info about installed packages or available in PyPi
 semantic_version    # check compatibility versioning
