@@ -6,9 +6,9 @@
 # - internal targets shall start with '.'
 # - KISS
 #
-
-.DEFAULT_GOAL := help
 SHELL = /bin/bash
+.DEFAULT_GOAL := help
+
 
 
 OUTPUT_DIR = $(CURDIR)/output
@@ -24,6 +24,7 @@ TEMPLATE = $(CURDIR)
 		setuptools
 
 requirements.txt: requirements.in # Pip compile requirements.in
+	$@/bin/pip3 install pip-tools
 	pip-compile -v --output-file requirements.txt requirements.in
 
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
