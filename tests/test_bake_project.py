@@ -32,11 +32,10 @@ def test_run_tests(cookies):
     result = cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry':'test.test.com'})
     working_dir = str(result.project)
     commands = (
-        "ls -la .",        
+        "ls -la .",
         "make build",
-        "pip install -r tests/requirements.txt",
-        "make unit-test",
-        "make integration-test"
+        "make info-build",
+        ## "make tests"
     )
     with inside_dir(working_dir):
         for cmd in commands:

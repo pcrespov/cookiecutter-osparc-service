@@ -36,15 +36,15 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 	@echo "To activate the virtual environment, run 'source $</bin/activate'"
 
 
-.PHONE: tests
+.PHONY: tests
 tests: ## tests backed cookie
 	@pytest -vv \
-		-c $(CURDIR)/pytest.ini \
 		--exitfirst \
 		--failed-first \
 		--durations=0 \
 		--pdb \
 		$(CURDIR)/tests
+
 
 #-----------------------------------
 .PHONY: play
@@ -71,13 +71,20 @@ endif
 	@echo "To see generated code, lauch 'code $(wildcard $(OUTPUT_DIR)/*)'"
 
 
+
+.PHONY: version-patch version-minor version-major
+version-patch version-minor version-major: ## commits version as patch (bug fixes not affecting the API), minor/minor (backwards-compatible/INcompatible API addition or changes)
+	# upgrades as $(subst version-,,$@) version, commits and tags
+	@bump2version --verbose  --list $(subst version-,,$@)
+
+
 #-----------------------------------
 .PHONY: help
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help: ## this colorful help
 	@echo "Recipes for '$(notdir $(CURDIR))':"
 	@echo ""
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_- ]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
 git_clean_args = -dxf -e .vscode/ -e TODO.md -e .venv
