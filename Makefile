@@ -75,7 +75,7 @@ help: ## this colorful help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
-git_clean_args = -dxf -e .vscode/ -e TODOS.md -e .venv
+git_clean_args = -dxf -e .vscode/ -e TODO.md -e .venv
 
 .PHONY: clean clean-force
 clean: ## cleans all unversioned files in project and temp files create by this makefile
