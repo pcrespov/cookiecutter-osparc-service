@@ -51,7 +51,7 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 #-----------------------------------
 .PHONY: build build-devel
 
-metatada_dir = docker/labels
+metatada_dir = metadata
 metadata_files = $(shell find $(metatada_dir) -type f -name '*.json')
 
 service.cli/do_run: $(metatada_dir) $(metadata_files)
