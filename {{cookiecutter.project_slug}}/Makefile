@@ -23,15 +23,24 @@ export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
 .PHONY: devenv
 .venv:
 	python3 -m venv $@
+	# upgrading package managers
 	$@/bin/pip3 install --upgrade \
 		pip \
 		wheel \
 		setuptools
+	# tooling
+	$@/bin/pip3 install pip-tools
+
+requirements.txt: requirements.in
+	# freezes requirements
+	pip-compile -v --output-file $@ $<
 
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
 	@$</bin/pip3 install -r  $(word 2,$^)
-	@echo "To activate the venv, execute 'source .venv/bin/activate'"
+	# your dev environment contains
+	@$</bin/pip3 list
+	@echo "To activate the virtual environment, run 'source $</bin/activate'"
 
 
 #-----------------------------------
@@ -138,7 +147,7 @@ pull:
 help: ## this colorful help
 	@echo "Recipes for '$(notdir $(CURDIR))':"
 	@echo ""
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_ -]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
 git_clean_args = -dxf -e .vscode/ -e TODO.md -e .venv

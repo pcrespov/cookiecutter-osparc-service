@@ -16,19 +16,24 @@ TEMPLATE = $(CURDIR)
 .PHONY: devenv
 .venv:
 	python3 -m venv $@
+	# upgrading package managers
 	$@/bin/pip3 install --upgrade \
 		pip \
 		wheel \
 		setuptools
-
-requirements.txt: requirements.in # Pip compile requirements.in
+	# tooling
 	$@/bin/pip3 install pip-tools
-	pip-compile -v --output-file requirements.txt requirements.in
+
+requirements.txt: requirements.in
+	# freezes requirements
+	pip-compile -v --output-file $@ $<
 
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
-	$</bin/pip3 install -r requirements.txt
-	@echo "To activate the venv, execute 'source .venv/bin/activate'"
+	@$</bin/pip3 install -r  $(word 2,$^)
+	# your dev environment contains
+	@$</bin/pip3 list
+	@echo "To activate the virtual environment, run 'source $</bin/activate'"
 
 
 .PHONE: tests

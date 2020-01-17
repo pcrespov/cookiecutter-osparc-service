@@ -1,3 +1,7 @@
+# tools
+pyyaml
+
+# tests
 docker
 jsonschema
 pytest
