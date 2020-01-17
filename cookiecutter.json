@@ -17,7 +17,7 @@
     "number_of_outputs":1,
     "project_git_repo": "https://github.com/yourrepo",
     "git_username": "Yourusername",
-    "default_docker_registry": "https://index.docker.io/v1",
+    "default_docker_registry": "itisfoundation",
     "release_date": "{% now 'utc', '%Y' %}",
     "version": "0.1.0",
     "_extensions": [

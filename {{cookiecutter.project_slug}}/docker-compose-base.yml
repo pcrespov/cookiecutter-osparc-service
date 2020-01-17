@@ -7,11 +7,6 @@ services:
       context: ./
       dockerfile: src/Dockerfile
       target: production
-      labels:
-        org.label-schema.schema-version: "1.0"
-        org.label-schema.build-date: "${BUILD_DATE}"
-        org.label-schema.vcs-url: {{ cookiecutter.project_git_repo }}
-        org.label-schema.vcs-ref: "${VCS_REF}"
     environment:
       - INPUT_FOLDER=/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
       - OUTPUT_FOLDER=/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
