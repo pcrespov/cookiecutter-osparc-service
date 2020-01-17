@@ -1,4 +1,4 @@
-FROM alpine:3.7 as base
+FROM {{ cookiecutter.docker_base }} as base
 #
 #  USAGE:
 #     cd services/{{ cookiecutter.project_slug }}
