@@ -17,7 +17,8 @@ export VCS_STATUS_CLIENT:=$(if $(shell git status -s),'modified/untracked','clea
 export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
-
+export DOCKER_IMAGE_NAME?=simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
+export DOCKER_IMAGE_TAG?=$(shell cat VERSION)
 
 #-----------------------------------
 .PHONY: devenv
@@ -62,8 +63,21 @@ docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 	docker-compose $(foreach c,$^,-f $(c)) --log-level=ERROR config > $@
 
 build build-devel: docker-compose.yml service.cli/do_run ## builds images
-	# build service image
+	# building image local/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+	@DOCKER_REGISTRY=local; \
 	docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) build --parallel
+
+
+define show-meta
+	$(foreach iid,$(shell docker images */$(1):* -q | sort | uniq),\
+		docker image inspect $(iid) | jq '.[0] | .RepoTags, .ContainerConfig.Labels';)
+endef
+
+info-build: ## displays info on the built image
+	# Built images
+	@docker images */$(DOCKER_IMAGE_NAME):*
+	# Tags and labels
+	@$(call show-meta,$(DOCKER_IMAGE_NAME))
 
 #-----------------------------------
 .PHONY: tests tests-unit tests-integration
