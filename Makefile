@@ -29,7 +29,7 @@ requirements.txt: requirements.in # Pip compile requirements.in
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
 	$</bin/pip3 install -r requirements.txt
-	@echo "To activate the venv, execute $(if $(IS_WIN),'./venv/Scripts/activate.bat','source .venv/bin/activate')"
+	@echo "To activate the venv, execute 'source .venv/bin/activate'"
 
 
 .PHONE: tests
@@ -75,12 +75,16 @@ help: ## this colorful help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
-git_clean_args = -dxf -e .vscode/ -e TODOS.md
+git_clean_args = -dxf -e .vscode/ -e TODOS.md -e .venv
 
-.PHONY: clean
+.PHONY: clean clean-force
 clean: ## cleans all unversioned files in project and temp files create by this makefile
 	# Cleaning unversioned
 	@git clean -n $(git_clean_args)
 	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]
 	@echo -n "$(shell whoami), are you REALLY sure? [y/N] " && read ans && [ $${ans:-N} = y ]
 	@git clean $(git_clean_args)
+
+clean-force: clean
+	# removing .venv
+	-@rm -rf .venv

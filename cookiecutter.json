@@ -5,7 +5,7 @@
     "contact_email": "{{ cookiecutter.author_email }}",
     "project_name": "Name of the project",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
-    "project_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "project_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
     "project_short_description": "{{ cookiecutter.project_name }}",
     "project_type": [
         "computational"
