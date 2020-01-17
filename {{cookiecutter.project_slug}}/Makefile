@@ -18,7 +18,7 @@ export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
 export DOCKER_IMAGE_NAME?=simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
-export DOCKER_IMAGE_TAG?=$(shell cat VERSION)
+export DOCKER_IMAGE_TAG?=$(shell cat VERSION)-$(shell cat {{cookiecutter.project_slug}}/src/{{cookiecutter.project_package_name}}/VERSION)
 
 #-----------------------------------
 .PHONY: devenv
