@@ -38,7 +38,7 @@ export DOCKER_IMAGE_TAG?=$(KERNEL_VERSION)-$(INTEGRATION_VERSION)
 
 requirements.txt: requirements.in
 	# freezes requirements
-	pip-compile -v --output-file $@ $<
+	.venv/bin/pip-compile -v --output-file $@ $<
 
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
