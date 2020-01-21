@@ -39,8 +39,8 @@ def test_run_tests(cookies):
         "ls -la .",
         "make help",
         "make devenv",
-        #"source .venv/bin/activate; make build",
-        "make info-build",
+        "make build info-build",
+        "make tests-unit",
         ## "make tests"
     )
     with inside_dir(working_dir):

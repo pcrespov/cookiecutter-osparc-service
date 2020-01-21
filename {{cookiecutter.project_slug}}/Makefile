@@ -56,11 +56,11 @@ metadata_files = $(shell find $(metatada_dir) -type f -name '*.json')
 
 service.cli/do_run: $(metatada_dir) $(metadata_files)
 	# Updates adapter script from metadata in $<
-	python3 tools/run_creator.py --folder $< --runscript $@
+	.venv/bin/python3 tools/run_creator.py --folder $< --runscript $@
 
 docker-compose-meta.yml: $(metatada_dir) $(metadata_files)
 	# Injects metadata from $< as labels
-	python3 tools/update_compose_labels.py --compose $@ --input $<
+	.venv/bin/python3 tools/update_compose_labels.py --compose $@ --input $<
 
 docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 	# Resolving $@ configuration
@@ -88,7 +88,7 @@ info-build: ## displays info on the built image
 .PHONY: tests tests-unit tests-integration
 
 tests-unit tests-integration:
-	pytest -vv \
+	@.venv/bin/pytest -vv \
 		--exitfirst \
 		--failed-first \
 		--pdb \
