@@ -1,35 +1,33 @@
-# pylint:disable=wildcard-import
-# pylint:disable=unused-import
 # pylint:disable=unused-variable
 # pylint:disable=unused-argument
 # pylint:disable=redefined-outer-name
 
 from pathlib import Path
-
 import pytest
 
-def test_docker_dir(docker_dir: Path):
-    labels_dir = docker_dir / "labels" 
-    assert labels_dir.exists()
+expected_files = (
+    ".cookiecutterrc",
+    "metadata:*.json",
+    "docker/entrypoint.sh",
+    "docker/boot.sh",
+    "tools/run_creator.py",
+    "tools/update_compose_labels.py",
+    "requirements.in",
+    "requirements.txt",
+    "src/Dockerfile",
+    "src/{{cookiecutter.project_package_name}}/VERSION",
+    "Makefile",
+    "VERSION",
+    "README.md"
+)
 
-    labels = list(labels_dir.glob("*.json"))
-    assert len(labels) > 0
+@pytest.mark.parametrize("expected_path", expected_files)
+def test_path_in_repo(expected_path: str, project_slug_dir: Path):
 
-    assert Path(docker_dir / "entrypoint.sh").exists()
-    assert Path(docker_dir / "boot.sh").exists()
-
-def test_tools_dir(tools_dir: Path):
-    assert Path(tools_dir / "requirements.txt").exists()
-    assert Path(tools_dir / "update_compose_labels.py").exists()
-    assert Path(tools_dir / "run_creator.py").exists()
-
-def test_package_dir(src_dir: Path):
-    assert Path(src_dir / "Dockerfile").exists()
-
-def test_slug_dir(project_slug_dir: Path):
-    assert Path(project_slug_dir / ".bumpversion.cfg").exists()
-    assert Path(project_slug_dir / ".env-devel").exists()
-    assert Path(project_slug_dir / "docker-compose.yml").exists()
-    assert Path(project_slug_dir / "Makefile").exists()
-    assert Path(project_slug_dir / "README.md").exists()
-    assert Path(project_slug_dir / "VERSION").exists()
+    if ":" in expected_path:
+        folder, glob = expected_path.split(":")
+        folder_path = project_slug_dir / folder
+        assert folder_path.exists()
+        assert any(folder_path.glob(glob))
+    else:
+        assert  (project_slug_dir/expected_path).exists()
