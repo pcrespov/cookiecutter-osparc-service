@@ -11,6 +11,11 @@
 SHELL = /bin/bash
 .DEFAULT_GOAL := help
 
+
+# FIXME: any recipe will fail if project is not versioned
+ifeq(,$(wildcard .git))
+export git=echo
+endif
 export VCS_URL:=$(shell git config --get remote.origin.url)
 export VCS_REF:=$(shell git rev-parse --short HEAD)
 export VCS_STATUS_CLIENT:=$(if $(shell git status -s),'modified/untracked','clean')
