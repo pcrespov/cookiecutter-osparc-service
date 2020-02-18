@@ -11,6 +11,10 @@ autopep8
 # testing
 pytest
 pytest-cookies
+pytest-cov
+pytest-instafail
+pytest-mock
+pytest-sugar
 
 # package management
 bump2version
