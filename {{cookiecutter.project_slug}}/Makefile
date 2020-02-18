@@ -13,7 +13,7 @@ SHELL = /bin/bash
 
 
 # FIXME: any recipe will fail if project is not versioned
-ifeq(,$(wildcard .git))
+ifeq (,$(wildcard .git))
 export git=echo
 endif
 export VCS_URL:=$(shell git config --get remote.origin.url)
@@ -177,7 +177,7 @@ pull:
 help: ## this colorful help
 	@echo "Recipes for '$(notdir $(CURDIR))':"
 	@echo ""
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_ -]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk --posix 'BEGIN {FS = ":.*?## "} /^[[:alpha:][:space:]_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
 git_clean_args = -dxf -e .vscode/ -e TODO.md -e .venv
