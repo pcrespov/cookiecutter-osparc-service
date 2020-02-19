@@ -29,6 +29,11 @@ KERNEL_VERSION=$(shell cat src/{{cookiecutter.project_package_name}}/VERSION)
 
 export DOCKER_IMAGE_TAG?=$(KERNEL_VERSION)-$(INTEGRATION_VERSION)
 
+
+# BUILDKIT enabled
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
 #-----------------------------------
 .PHONY: devenv
 .venv:
