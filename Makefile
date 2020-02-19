@@ -24,9 +24,9 @@ TEMPLATE = $(CURDIR)
 	# tooling
 	$@/bin/pip3 install pip-tools
 
-requirements.txt: requirements.in
+requirements.txt: .venv requirements.in
 	# freezes requirements
-	pip-compile -v --output-file $@ $<
+	$</bin/pip-compile --verbose --output-file $@ requirements.in
 
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
