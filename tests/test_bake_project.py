@@ -41,7 +41,7 @@ def test_run_tests(cookies):
         "make devenv",
         "make build info-build",
         "make tests-unit",
-        ## "make tests"
+        "make tests-integration"
     )
     with inside_dir(working_dir):
         for cmd in commands:
