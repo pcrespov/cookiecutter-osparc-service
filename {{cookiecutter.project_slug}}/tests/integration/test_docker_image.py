@@ -15,40 +15,15 @@ from typing import Dict
 
 import docker
 import jsonschema
-
 import pytest
 
 
-@pytest.fixture
-def docker_client() -> docker.DockerClient:
-    return docker.from_env()
-
-@pytest.fixture
-def docker_image_key(docker_client: docker.DockerClient) -> str:
-    image_key = "simcore/services/{%- if cookiecutter.project_type == 'computational' -%}comp{%- elif cookiecutter.project_type == 'dynamic' -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest"
-    docker_images = [image for image in docker_client.images.list() if any(image_key in tag for tag in image.tags)]
-    return docker_images[0].tags[0]
-
-@pytest.fixture
-def docker_image(docker_client: docker.DockerClient, docker_image_key: str) -> docker.models.images.Image:
-    docker_image = docker_client.images.get(docker_image_key)
-    assert docker_image
-    return docker_image
-
+### HELPERS
 def _download_url(url: str, file: Path):
     # Download the file from `url` and save it locally under `file_name`:
     with urllib.request.urlopen(url) as response, file.open('wb') as out_file:
         shutil.copyfileobj(response, out_file)
     assert file.exists()
-
-@pytest.fixture
-def osparc_service_labels_jsonschema(tmp_path) -> Dict:
-    url = "https://raw.githubusercontent.com/ITISFoundation/osparc-simcore/master/api/specs/shared/schemas/node-meta-v0.0.1.json"
-    file_name = tmp_path / "service_label.json"
-    _download_url(url, file_name)
-    with file_name.open() as fp:
-        json_schema = json.load(fp)
-        return json_schema
 
 def _convert_to_simcore_labels(image_labels: Dict) -> Dict:
     io_simcore_labels = {}
@@ -63,7 +38,17 @@ def _convert_to_simcore_labels(image_labels: Dict) -> Dict:
     assert len(io_simcore_labels) > 0
     return io_simcore_labels
 
+### FIXTURES
+@pytest.fixture
+def osparc_service_labels_jsonschema(tmp_path) -> Dict:
+    url = "https://raw.githubusercontent.com/ITISFoundation/osparc-simcore/master/api/specs/shared/schemas/node-meta-v0.0.1.json"
+    file_name = tmp_path / "service_label.json"
+    _download_url(url, file_name)
+    with file_name.open() as fp:
+        json_schema = json.load(fp)
+        return json_schema
 
+### TESTS
 def test_docker_io_simcore_labels_against_files(docker_image: docker.models.images.Image, docker_dir):
     image_labels = docker_image.labels
     io_simcore_labels = _convert_to_simcore_labels(image_labels)

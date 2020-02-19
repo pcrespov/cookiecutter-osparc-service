@@ -54,8 +54,15 @@ def docker_dir(project_slug_dir: Path) -> Path:
 
 @pytest.fixture(scope='session')
 def package_dir(src_dir: Path) -> Path:
-    return src_dir / "name_of_the_project"
+    package_dir = src_dir / "name_of_the_project"
+    assert package_dir.exists()
+    return package_dir
 
+@pytest.fixture(scope='session')
+def metadata_file(project_slug_dir: Path) -> Path:
+    metadata_file = project_slug_dir / "metadata" / "metadata.yml"
+    assert metadata_file.exists()
+    return metadata_file
 
 @pytest.fixture(scope='session')
 def git_root_dir() -> Path:

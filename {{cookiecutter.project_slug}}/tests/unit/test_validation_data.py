@@ -15,11 +15,9 @@ def port_type() -> str:
 
 
 @pytest.fixture
-def label_cfg(project_slug_dir: Path, port_type: str) -> Dict:
+def label_cfg(metadata_file: Path, port_type: str) -> Dict:
     ports_type = f"{port_type}s"
-    file_path = project_slug_dir / "metadata" / "metadata.yml"
-    assert file_path.exists()
-    with file_path.open() as fp:
+    with metadata_file.open() as fp:
         cfg = yaml.safe_load(fp)
         assert ports_type in cfg
         return cfg[ports_type]
