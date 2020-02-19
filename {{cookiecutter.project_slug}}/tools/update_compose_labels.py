@@ -35,10 +35,10 @@ def get_metadata_file(metadata_file: Path) -> Dict:
 def stringify_metadata(metadata: Dict) -> Dict[str, str]:
     jsons = {}
     for key, value in metadata.items():
-        jsons[f"io.simcore.{key}"] = json.dumps(value)
+        jsons[f"io.simcore.{key}"] = json.dumps({key: value})
     return jsons
 
-def update_compose_labels(compose_cfg: Dict, metadata: Dict) -> bool:
+def update_compose_labels(compose_cfg: Dict, metadata: Dict[str,str]) -> bool:
     compose_labels = compose_cfg["services"]["{{ cookiecutter.project_slug }}"]["build"]["labels"]
     changed = False
     for key, value in metadata.items():
