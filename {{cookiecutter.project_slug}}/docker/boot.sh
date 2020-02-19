@@ -23,13 +23,4 @@ then
   echo "Target is ${SC_BUILD_TARGET}"
 fi
 
-
-# RUNNING application ----------------------------------------
-if [ "${BOOT_MODE}" = "debug" ]
-then
-  echo "debuging..."
-else
-  echo "running in release mode..."
-fi
-
 /bin/sh
