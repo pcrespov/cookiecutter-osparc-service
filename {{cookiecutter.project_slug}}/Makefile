@@ -35,8 +35,8 @@ export COMPOSE_OUTPUT_DIR := .tmp/output
 export COMPOSE_LOG_DIR := .tmp/log
 
 # BUILDKIT enabled
-export DOCKER_BUILDKIT=1
-export COMPOSE_DOCKER_CLI_BUILD=1
+# export DOCKER_BUILDKIT=1
+# export COMPOSE_DOCKER_CLI_BUILD=1
 
 #-----------------------------------
 .PHONY: devenv
@@ -63,7 +63,7 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 
 
 #-----------------------------------
-.PHONY: build build-devel
+
 
 metatada = metadata/metadata.yml
 
@@ -79,6 +79,8 @@ docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 	# Resolving $@ configuration
 	docker-compose $(foreach c,$^,-f $(c)) --log-level=ERROR config > $@
 
+
+.PHONY: build build-devel
 build build-devel: docker-compose.yml service.cli/do_run ## builds images
 	# building image local/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 	@DOCKER_REGISTRY=local; \
