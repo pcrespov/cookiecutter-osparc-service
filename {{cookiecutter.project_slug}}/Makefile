@@ -56,16 +56,15 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 #-----------------------------------
 .PHONY: build build-devel
 
-metatada_dir = metadata
-metadata_files = $(shell find $(metatada_dir) -type f -name '*.json')
+metatada = metadata/metadata.yml
 
-service.cli/do_run: $(metatada_dir) $(metadata_files)
+service.cli/do_run: $(metatada)
 	# Updates adapter script from metadata in $<
-	.venv/bin/python3 tools/run_creator.py --folder $< --runscript $@
+	.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
 
-docker-compose-meta.yml: $(metatada_dir) $(metadata_files)
+docker-compose-meta.yml: $(metatada)
 	# Injects metadata from $< as labels
-	.venv/bin/python3 tools/update_compose_labels.py --compose $@ --input $<
+	.venv/bin/python3 tools/update_compose_labels.py --compose $@ --metadata $<
 
 docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 	# Resolving $@ configuration

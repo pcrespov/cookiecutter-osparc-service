@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict
 
 import pytest
+import yaml
 
 
 @pytest.fixture
@@ -15,13 +16,13 @@ def port_type() -> str:
 
 @pytest.fixture
 def label_cfg(project_slug_dir: Path, port_type: str) -> Dict:
-    file_type = "{}s".format(port_type)
-    file_path = project_slug_dir / "metadata" / f"{file_type}.json"
+    ports_type = f"{port_type}s"
+    file_path = project_slug_dir / "metadata" / "metadata.yml"
     assert file_path.exists()
     with file_path.open() as fp:
-        cfg = json.load(fp)
-        assert file_type in cfg
-        return cfg[file_type]
+        cfg = yaml.safe_load(fp)
+        assert ports_type in cfg
+        return cfg[ports_type]
 
 
 @pytest.fixture
@@ -32,7 +33,7 @@ def validation_folder(validation_dir: Path, port_type: str) -> Path:
 @pytest.fixture
 def validation_cfg(validation_dir: Path, port_type: str) -> Dict:
     validation_file = validation_dir / \
-        port_type / ("{}.json").format(port_type)
+        port_type / (f"{port_type}.json")
     if validation_file.exists():
         with validation_file.open() as fp:
             return json.load(fp)

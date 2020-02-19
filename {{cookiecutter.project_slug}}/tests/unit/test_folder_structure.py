@@ -7,7 +7,7 @@ import pytest
 
 expected_files = (
     ".cookiecutterrc",
-    "metadata:*.json",
+    "metadata:metadata.yml",
     "docker/entrypoint.sh",
     "docker/boot.sh",
     "tools/run_creator.py",

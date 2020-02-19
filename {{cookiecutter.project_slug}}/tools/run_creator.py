@@ -16,6 +16,8 @@ from enum import IntEnum
 from pathlib import Path
 from typing import Dict
 
+import yaml
+
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -24,14 +26,18 @@ class ExitCode(IntEnum):
     FAIL = 1
 
 
-def get_input_config(folder: Path) -> Dict:
-    with (folder / "inputs.json").open() as fp:
-        return json.load(fp)
+def get_input_config(metadata_file: Path) -> Dict:
+    inputs = {}
+    with metadata_file.open() as fp:
+        metadata = yaml.safe_load(fp)
+        if "inputs" in metadata:
+            inputs = metadata["inputs"]
+    return inputs
 
 def main(args = None) -> int:
     try:
         parser = argparse.ArgumentParser(description=__doc__)
-        parser.add_argument("--folder", help="The json folder where to find the labels", type=Path, required=True)
+        parser.add_argument("--metadata", help="The metadata yaml of the node", type=Path, required=False, default="/metadata/metadata.yml")
         parser.add_argument("--runscript", help="The run script", type=Path, required=True)
         options = parser.parse_args(args)
 
@@ -46,8 +52,8 @@ def main(args = None) -> int:
             "IFS=$'\n\t'",
             "_json_input=$INPUT_FOLDER/input.json"
             ]
-        input_config = get_input_config(options.folder)
-        for input_key, input_value in input_config["inputs"].items():
+        input_config = get_input_config(options.metadata)
+        for input_key, input_value in input_config.items():
             if "data:" in input_value["type"]:
                 filename = input_key
                 if "fileToKeyMap" in input_value and len(input_value["fileToKeyMap"]) > 0:
