@@ -118,7 +118,7 @@ down: docker-compose.yml
 	@docker-compose -f $< down
 
 up up-devel: docker-compose.yml down ## Starts/stops service
-	@docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) up
+	@docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) up
 
 
 .PHONY: push-release push
