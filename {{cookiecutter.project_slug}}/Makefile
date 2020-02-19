@@ -30,6 +30,10 @@ KERNEL_VERSION=$(shell cat src/{{cookiecutter.project_package_name}}/VERSION)
 export DOCKER_IMAGE_TAG?=$(KERNEL_VERSION)-$(INTEGRATION_VERSION)
 
 
+export COMPOSE_INPUT_DIR := ./validation/input
+export COMPOSE_OUTPUT_DIR := .tmp/output
+export COMPOSE_LOG_DIR := .tmp/log
+
 # BUILDKIT enabled
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
@@ -117,12 +121,23 @@ version-patch version-minor version-major: ## commits integration version as pat
 
 ## TODO: Review ----------------------------------------
 
-.PHONY: down up up-devel
 
-down: docker-compose.yml
+# NOTE: Do not remove this since using docker-compose would create the folders automatically but as root user, which is inconvenient
+define clean_output_dirs
+	# cleaning log/output directory
+	rm -rf $(COMPOSE_LOG_DIR)/*
+	rm -rf $(COMPOSE_OUTPUT_DIR)/*
+endef
+$(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR):
+	mkdir -p $@
+
+.PHONY: down up up-devel
+down: docker-compose.yml ## stops the service
 	@docker-compose -f $< down
 
-up up-devel: docker-compose.yml down ## Starts/stops service
+up up-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR) down ## Starts the service in release or devel mode and mount in for manual debugging
+	@$(call clean_output_dirs)
+	# starting service...
 	@docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) up
 
 

@@ -14,6 +14,6 @@ services:
     init: true
     volumes:
       # some defaults to test the service
-      - ./validation/input:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-      - ./tmp/output:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-      - ./tmp/log:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+      - ${COMPOSE_INPUT_DIR}:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+      - ${COMPOSE_OUTPUT_DIR}:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
+      - ${COMPOSE_LOG_DIR}:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
