@@ -9,7 +9,7 @@ authors:
     email: {{ cookiecutter.author_email }}
     affiliation: {{ cookiecutter.author_affiliation }}
 inputs:
-{%- for i in range(cookiecutter.number_of_inputs|int) -%}
+  {% for i in range(cookiecutter.number_of_inputs|int) -%}
   input_{{ i+1 }}:
     displayOrder: {{ i+1 }}
     label: input_{{ i+1 }}_label
@@ -18,10 +18,9 @@ inputs:
     defaultValue: some_value(optional)
     fileToKeyMap:
       somefilename.ext: input_{{ i+1 }}
-{%- endfor %}
-
+  {% endfor %}
 outputs:
-{% for i in range(cookiecutter.number_of_outputs|int) %}
+  {% for i in range(cookiecutter.number_of_outputs|int) -%}
   output_{{ i+1 }}:
     displayOrder": {{ i+1 }}
     label: output_{{ i+1 }}_label
@@ -29,4 +28,4 @@ outputs:
     type: string
     fileToKeyMap:
       somefilename.ext: output_{{ i+1 }}
-{% endfor %}
+  {% endfor %}
