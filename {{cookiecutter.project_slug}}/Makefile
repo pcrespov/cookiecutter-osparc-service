@@ -142,6 +142,11 @@ up up-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(
 	# starting service...
 	@docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) up
 
+.PHONY: shell shell-devel
+shell shell-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR) down ## Starts a shell inside the container for manual mode
+	@$(call clean_output_dirs)
+	docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) run {{ cookiecutter.project_slug }} /bin/sh
+
 
 .PHONY: push-release push
 # target: push-release, push: – Pushes services to the registry if service not available in registry. push overwrites.
