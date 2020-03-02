@@ -13,9 +13,11 @@ import urllib.request
 from pathlib import Path
 from typing import Dict
 
+import pytest
+import yaml
+
 import docker
 import jsonschema
-import pytest
 
 
 ### HELPERS
@@ -48,18 +50,20 @@ def osparc_service_labels_jsonschema(tmp_path) -> Dict:
         json_schema = json.load(fp)
         return json_schema
 
+@pytest.fixture(scope='session')
+def metadata_labels(metadata_file: Path) -> Dict:
+    with metadata_file.open() as fp:
+        metadata = yaml.safe_load(fp)
+        return metadata
+
 ### TESTS
-def test_docker_io_simcore_labels_against_files(docker_image: docker.models.images.Image, docker_dir):
+def test_docker_io_simcore_labels_against_files(docker_image: docker.models.images.Image, metadata_labels: Dict):
     image_labels = docker_image.labels
     io_simcore_labels = _convert_to_simcore_labels(image_labels)
     # check files are identical
     for key, value in io_simcore_labels.items():
-        file_name = Path(docker_dir / "labels" / "{}.json".format(key))
-        assert file_name.exists()
-        with file_name.open() as fp:
-            label_dict = json.load(fp)
-            assert key in label_dict
-            assert value == label_dict[key]
+        assert key in metadata_labels
+        assert value == metadata_labels[key]
 
 
 def test_validate_docker_io_simcore_labels(docker_image: docker.models.images.Image, osparc_service_labels_jsonschema: Dict):
