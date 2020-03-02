@@ -22,7 +22,7 @@ inputs:
 outputs:
   {% for i in range(cookiecutter.number_of_outputs|int) -%}
   output_{{ i+1 }}:
-    displayOrder": {{ i+1 }}
+    displayOrder: {{ i+1 }}
     label: output_{{ i+1 }}_label
     description: The input {{ i+1 }} description
     type: string
