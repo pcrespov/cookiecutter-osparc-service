@@ -121,8 +121,7 @@ version-patch version-minor version-major: ## commits integration version as pat
 
 
 
-## TODO: Review ----------------------------------------
-
+#----------------------------------------
 
 # NOTE: Do not remove this since using docker-compose would create the folders automatically but as root user, which is inconvenient
 define clean_output_dirs
@@ -137,16 +136,18 @@ $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR):
 down: docker-compose.yml ## stops the service
 	@docker-compose -f $< down
 
-up up-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR) down ## Starts the service in release or devel mode and mount in for manual debugging
+up up-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR) down ## Starts the service for testing. Devel mode mounts the folders for direct development.
 	@$(call clean_output_dirs)
 	# starting service...
 	@docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) up
 
 .PHONY: shell shell-devel
-shell shell-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR) down ## Starts a shell inside the container for manual mode
+shell shell-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR) down ## Starts a shell instead of running the container. Useful for development.
 	@$(call clean_output_dirs)
 	docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) run {{ cookiecutter.project_slug }} /bin/sh
 
+
+#----------------------------------------
 
 .PHONY: push-release push
 # target: push-release, push: – Pushes services to the registry if service not available in registry. push overwrites.
