@@ -68,7 +68,7 @@ else
 		--config-file="$(cookiecutterrc)"  \
 		--output-dir="$<" "$(TEMPLATE)"
 endif
-	@echo "To see generated code, lauch 'code $(wildcard $(OUTPUT_DIR)/*)'"
+	@echo "To see generated code, lauch 'code $(OUTPUT_DIR)'"
 
 
 
