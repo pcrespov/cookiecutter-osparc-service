@@ -18,5 +18,9 @@ before_script:
   - pip3 -V
   - docker --version
   - docker-compose --version
+  - make devenv
 script:
+  - source .venv/bin/activate
   - pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc -vv tests
+after_script:
+  - make clean

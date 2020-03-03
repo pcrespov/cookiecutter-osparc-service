@@ -46,8 +46,11 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: install cookie-cutter-osparc
-        run: pip install -r requirements.txt
-      - name: run tests
+      - name: prepare devenv
+        run: make devenv
+      - name: test cookiecutter
         run: |
+          source .venv/bin/activate
           pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc -vv tests
+      - name: cleanup
+        run: make clean
