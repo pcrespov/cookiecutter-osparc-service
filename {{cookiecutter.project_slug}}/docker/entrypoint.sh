@@ -15,11 +15,11 @@ echo   Workdir : "$(pwd)"
 
 
 # expect input/output/log folders to be mounted
-stat "${INPUT_FOLDER}" 2>/dev/null || \
+stat "${INPUT_FOLDER}" > /dev/null 2>&1 || \
         (echo "ERROR: You must mount '${INPUT_FOLDER}' to deduce user and group ids" && exit 1)
-stat "${OUTPUT_FOLDER}" 2>/dev/null || \
+stat "${OUTPUT_FOLDER}" > /dev/null 2>&1 || \
     (echo "ERROR: You must mount '${OUTPUT_FOLDER}' to deduce user and group ids" && exit 1)
-stat "${LOG_FOLDER}" 2>/dev/null || \
+stat "${LOG_FOLDER}" > /dev/null 2>&1 || \
     (echo "ERROR: You must mount '${LOG_FOLDER}' to deduce user and group ids" && exit 1)
 
 # NOTE: expects docker run ... -v /path/to/input/folder:${INPUT_FOLDER}
@@ -64,7 +64,7 @@ else
     fi
 
     echo "changing $SC_USER_NAME $SC_USER_ID:$SC_USER_ID to $USERID:$GROUPID"
-    deluser "$SC_USER_NAME" 2>/dev/null
+    deluser "$SC_USER_NAME" > /dev/null 2>&1
     if [ "$SC_USER_NAME" = "$GROUPNAME" ]
     then
         addgroup -g "$GROUPID" "$GROUPNAME"
