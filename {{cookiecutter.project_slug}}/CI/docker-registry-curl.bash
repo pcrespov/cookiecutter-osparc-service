@@ -17,9 +17,9 @@ console() {
 }
 
 main() {
-    OUTPUT=$(curl "${@}" --head -vsi 2>&1 | egrep -e "^<|^>")
-    REGISTRY_HOST=$(echo "${OUTPUT}" | egrep "> Host: " | cut -d ":" -f2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    WWW_AUTHENTICATE=$(echo "${OUTPUT}" | egrep "< Www-Authenticate: " | cut -d ":" -f2- | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    OUTPUT=$(curl "${@}" --head -vsi 2>&1 | grep -E "^<|^>")
+    REGISTRY_HOST=$(echo "${OUTPUT}" | grep -E "> Host: " | cut -d ":" -f2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    WWW_AUTHENTICATE=$(echo "${OUTPUT}" | grep -E "< www-authenticate: " | cut -d ":" -f2- | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
     console "${OUTPUT}"
     console "${REGISTRY_HOST}"
@@ -49,7 +49,7 @@ main() {
             console "${DOCKER_AUTH}"
             if [ "x" != "x${DOCKER_AUTH}" ];then
                 DOCKER_AUTH_TOKEN=$(curl -m 10 -u "${DOCKER_AUTH}" "${REALM}?service=${SERVICE}&scope=${SCOPE}" -s 2>/dev/null | jq -r .token | xargs echo)
-            fi 
+            fi
             console "${DOCKER_AUTH_TOKEN}"
         fi
     fi
