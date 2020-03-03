@@ -39,6 +39,7 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 .PHONY: tests
 tests: ## tests backed cookie
 	@pytest -vv \
+		--basetemp=$(CURDIR)/tmp \
 		--exitfirst \
 		--failed-first \
 		--durations=0 \
