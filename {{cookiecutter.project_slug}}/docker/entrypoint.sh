@@ -26,18 +26,18 @@ stat "${LOG_FOLDER}" > /dev/null 2>&1 || \
 # check input/output/log folders are owned by the same user
 if [ "$(stat -c %u "${INPUT_FOLDER}")" -ne "$(stat -c %u "${OUTPUT_FOLDER}")" ]
 then
-    (echo "ERROR: '${INPUT_FOLDER}' and '${OUTPUT_FOLDER}' have different user id's. not allowed" && exit 1)
+    echo "ERROR: '${INPUT_FOLDER}' and '${OUTPUT_FOLDER}' have different user id's. not allowed" && exit 1
 elif [ "$(stat -c %u "${INPUT_FOLDER}")" -ne "$(stat -c %u "${LOG_FOLDER}")" ]
 then
-    (echo "ERROR: '${INPUT_FOLDER}' and '${LOG_FOLDER}' have different user id's. not allowed" && exit 1)
+    echo "ERROR: '${INPUT_FOLDER}' and '${LOG_FOLDER}' have different user id's. not allowed" && exit 1
 fi
 # check input/output/log folders are owned by the same group
 if [ "$(stat -c %g "${INPUT_FOLDER}")" -ne "$(stat -c %g "${OUTPUT_FOLDER}")" ]
 then
-    (echo "ERROR: '${INPUT_FOLDER}' and '${OUTPUT_FOLDER}' have different group id's. not allowed" && exit 1)
+    echo "ERROR: '${INPUT_FOLDER}' and '${OUTPUT_FOLDER}' have different group id's. not allowed" && exit 1
 elif [ "$(stat -c %g "${INPUT_FOLDER}")" -ne "$(stat -c %g "${LOG_FOLDER}")" ]
 then
-    (echo "ERROR: '${INPUT_FOLDER}' and '${LOG_FOLDER}' have different group id's. not allowed" && exit 1)
+    echo "ERROR: '${INPUT_FOLDER}' and '${LOG_FOLDER}' have different group id's. not allowed" && exit 1
 fi
 
 echo "setting correct user id/group id..."
