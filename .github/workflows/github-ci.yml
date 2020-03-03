@@ -5,15 +5,9 @@ on:
   pull_request:
 
 env:
-  # secrets can be set in settings/secrets on github
-  DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-  CODECOV_TOKEN: 0e81ae5f-1909-4035-921c-571693fdafd1
-  CC_TEST_REPORTER_ID: 21a72eb30476c870140b1576258873a41be6692f71bd9aebe812174b7d8f4b4e
-  #enable buildkit
   DOCKER_BUILDKIT: 1
-  COMPOSE_DOCKER_CLI_BUILD: 1
+  # disable buildkit in compose since there is a failure in docker-compose (see https://github.com/docker/compose/issues/7242#issuecomment-593581723)
+  # COMPOSE_DOCKER_CLI_BUILD: 1
 
 jobs:
   cookie-cutter-osparc:
