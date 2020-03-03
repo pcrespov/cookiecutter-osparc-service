@@ -4,8 +4,8 @@ on:
   push:
   pull_request:
 
-env:
-  DOCKER_BUILDKIT: 1
+# env:
+  # DOCKER_BUILDKIT: 1
   # disable buildkit in compose since there is a failure in docker-compose (see https://github.com/docker/compose/issues/7242#issuecomment-593581723)
   # COMPOSE_DOCKER_CLI_BUILD: 1
 
@@ -51,6 +51,6 @@ jobs:
       - name: test cookiecutter
         run: |
           source .venv/bin/activate
-          pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc -vv tests
+          pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc -vv --basetemp=${PWD}/tmp tests
       - name: cleanup
         run: make clean
