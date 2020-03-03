@@ -55,7 +55,7 @@ jobs:
       - name: install cookie-cutter-osparc
         run: pip install -r requirements.txt
       - name: run tests
-        run: |
-          pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append \
-            --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc \
+        run: >
+          pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append
+            --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc
             -vv tests
