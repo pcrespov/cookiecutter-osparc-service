@@ -14,11 +14,12 @@ SHELL = /bin/bash
 
 # FIXME: any recipe will fail if project is not versioned
 ifeq (,$(wildcard .git))
+$(info WARNING: not running in a git repository!!!)
 export git=echo
 endif
-export VCS_URL:=$(shell git config --get remote.origin.url)
-export VCS_REF:=$(shell git rev-parse --short HEAD)
-export VCS_STATUS_CLIENT:=$(if $(shell git status -s),'modified/untracked','clean')
+export VCS_URL:=$(shell $(git) config --get remote.origin.url)
+export VCS_REF:=$(shell $(git) rev-parse --short HEAD)
+export VCS_STATUS_CLIENT:=$(if $(shell $(git) status -s),'modified/untracked','clean')
 export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
@@ -213,7 +214,7 @@ git_clean_args = -dxf -e .vscode/ -e TODO.md -e .venv
 .PHONY: clean clean-force
 clean: ## cleans all unversioned files in project and temp files create by this makefile
 	# Cleaning unversioned
-	@git clean -n $(git_clean_args)
+	@$(git) clean -n $(git_clean_args)
 	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]
 	@echo -n "$(shell whoami), are you REALLY sure? [y/N] " && read ans && [ $${ans:-N} = y ]
-	@git clean $(git_clean_args)
+	@$(git) clean $(git_clean_args)
