@@ -2,6 +2,7 @@ urllib3~=1.24.2  # https://nvd.nist.gov/vuln/detail/CVE-2019-11324
 jinja2~=2.10.1   # https://nvd.nist.gov/vuln/detail/CVE-2019-8341
 
 cookiecutter
+coverage
 
 # linter
 pylint
