@@ -17,12 +17,12 @@ TEMPLATE = $(CURDIR)
 .venv:
 	python3 -m venv $@
 	# upgrading package managers
-	$@/bin/pip3 install --upgrade \
+	$@/bin/pip install --upgrade \
 		pip \
 		wheel \
 		setuptools
 	# tooling
-	$@/bin/pip3 install pip-tools
+	$@/bin/pip install pip-tools
 
 requirements.txt: .venv requirements.in
 	# freezes requirements
