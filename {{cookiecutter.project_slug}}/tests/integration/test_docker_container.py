@@ -110,7 +110,7 @@ def test_run_container(validation_folders: Dict, host_folders: Dict, docker_cont
 
     # check the output is correct based on container labels
     output_cfg = {}
-    output_cfg_file = Path(host_folders["output"] / "output.json")
+    output_cfg_file = Path(host_folders["output"] / "outputs.json")
     if output_cfg_file.exists():
         with output_cfg_file.open() as fp:
             output_cfg = json.load(fp)
@@ -120,7 +120,7 @@ def test_run_container(validation_folders: Dict, host_folders: Dict, docker_cont
     assert "outputs" in io_simcore_labels
     for key, value in io_simcore_labels["outputs"].items():
         assert "type" in value
-        # rationale: files are on their own and other types are in input.json
+        # rationale: files are on their own and other types are in inputs.json
         if not "data:" in value["type"]:
             # check that keys are available
             assert key in output_cfg

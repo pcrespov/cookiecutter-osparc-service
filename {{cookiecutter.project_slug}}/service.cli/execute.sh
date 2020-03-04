@@ -21,9 +21,9 @@ ls -al >> "$LOG_FILE"
 
 # then retrieve the output and move it to the $OUTPUT_FOLDER
 # as defined in the output labels
-# For example: cp output.csv $OUTPUT_FOLDER or to $OUTPUT_FOLDER/output.json using jq
+# For example: cp output.csv $OUTPUT_FOLDER or to $OUTPUT_FOLDER/outputs.json using jq
 #TODO: Replace following
-cat > "${OUTPUT_FOLDER}"/output.json << EOF
+cat > "${OUTPUT_FOLDER}"/outputs.json << EOF
 {
 {%- for i in range(cookiecutter.number_of_outputs|int) -%}
 {%- if i > 0 -%},{%- endif %}

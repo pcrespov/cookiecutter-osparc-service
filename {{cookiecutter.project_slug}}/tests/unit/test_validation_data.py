@@ -60,7 +60,7 @@ def test_validation_data_follows_definition(label_cfg: Dict, validation_cfg: Dic
     for key, value in label_cfg.items():
         assert "type" in value
 
-        # rationale: files are on their own and other types are in input.json
+        # rationale: files are on their own and other types are in inputs.json
         if not "data:" in value["type"]:
             # check that keys are available
             assert key in validation_cfg
@@ -92,7 +92,7 @@ def test_validation_data_follows_definition(label_cfg: Dict, validation_cfg: Dic
                 assert isinstance(value, label2types[label_cfg[key]["type"]])
 
     for path in validation_folder.glob("**/*"):
-        if path.name in ["input.json", "output.json", ".gitkeep"]:
+        if path.name in ["inputs.json", "outputs.json", ".gitkeep"]:
             continue
         assert path.is_file()
         filename = path.name

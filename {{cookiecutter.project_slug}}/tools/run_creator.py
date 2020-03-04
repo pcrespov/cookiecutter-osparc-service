@@ -53,7 +53,7 @@ set -o errexit
 set -o nounset
 IFS=$(printf '\\n\\t')
 cd "$(dirname "$0")"
-json_input=$INPUT_FOLDER/input.json
+json_input=$INPUT_FOLDER/inputs.json
         """
         ]
         input_config = get_input_config(options.metadata)
