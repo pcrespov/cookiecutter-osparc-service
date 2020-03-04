@@ -82,7 +82,7 @@ docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 
 
 .PHONY: build build-devel
-build build-devel: docker-compose.yml service.cli/do_run ## builds images
+build build-devel: docker-compose.yml service.cli/do_run.bash ## builds images
 	# building image local/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 	@DOCKER_REGISTRY=local; \
 	docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) build --parallel
