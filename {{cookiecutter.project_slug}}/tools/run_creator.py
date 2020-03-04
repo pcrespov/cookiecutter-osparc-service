@@ -69,10 +69,8 @@ json_input=$INPUT_FOLDER/inputs.json
                 input_script.append(f"export {str(input_key).upper()}")
 
         input_script.extend(["""
-export LOG_FILE=$LOG_FOLDER/log.dat
-echo "executing service..."
-./execute.sh
-echo "execution completed."
+LOG_FILE=$LOG_FOLDER/log.dat
+exec execute.sh > "$LOG_FILE"
         """
         ])
 
