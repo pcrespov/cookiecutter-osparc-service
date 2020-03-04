@@ -9,8 +9,7 @@ python:
   - "3.6"
   - "3.7"
   - "3.8"
-install:
-  - "pip install -r requirements.txt"
+
 before_script:
   - python -V
   - python3 -V
@@ -19,6 +18,8 @@ before_script:
   - docker --version
   - docker-compose --version
   - make devenv
+
 script:
+  - make devenv
   - source .venv/bin/activate
   - pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc -vv --basetemp=${PWD}/tmp tests
