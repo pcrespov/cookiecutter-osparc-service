@@ -20,6 +20,6 @@ install:
   - docker-compose --version
 
 script:
-  - make devenv
-  - source .venv/bin/activate
+  # NOTE: travis uses some virtualenv. so here we do not call make devenv as in github actions.
+  - pip install -r requirements.txt  
   - pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc -vv --basetemp=${PWD}/tmp tests
