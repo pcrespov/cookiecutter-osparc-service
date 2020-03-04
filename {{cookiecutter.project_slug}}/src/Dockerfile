@@ -102,15 +102,11 @@ WORKDIR /home/${SC_USER_NAME}
 # ------------------------------------------------------------------------------------
 
 # copy docker bootup scripts
-COPY docker/*.sh docker/
-RUN chmod +x docker/*.sh &&\
-      chown ${SC_USER_NAME}:${SC_USER_NAME} docker/*.sh
+COPY --chown=${SC_USER_NAME}:${SC_USER_NAME} docker/ docker/
 
 {%- if cookiecutter.project_type == "computational" %}
 # copy simcore service cli
-COPY service.cli/ service.cli/
-RUN chmod +x service.cli/* &&\
-      chown ${SC_USER_NAME}:${SC_USER_NAME} service.cli/*
+COPY --chown=${SC_USER_NAME}:${SC_USER_NAME} service.cli/ service.cli/
 # necessary to be able to call run directly without sh in front
 ENV PATH="/home/${SC_USER_NAME}/service.cli:${PATH}"
 {%- endif %}
@@ -131,4 +127,4 @@ COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
 # ------------------------------------------------------------------------------------
 
 ENTRYPOINT [ "/bin/sh", "docker/entrypoint.sh" ]
-CMD ["run"]
+CMD ["/bin/sh", "-c", "run"]

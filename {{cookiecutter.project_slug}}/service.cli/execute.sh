@@ -1,17 +1,17 @@
 #!/bin/sh
 cd "$(dirname "$0")"
 
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+# set sh strict mode
 set -o errexit
 set -o nounset
 IFS=$(printf '\n\t')
 
 # ----------------------------------------------------------------
 # This script shall be modified according to the needs in order to run the service
-# The inputs defined in docker/inputs.json are available as env variables by their key in capital letters
+# The inputs defined in ${INPUT_FOLDER}/inputs.json are available as env variables by their key in capital letters
 # For example: input_1 -> $INPUT_1
 # call stack:
-# run.sh -> do_run.bash -> execute.bash
+# run -> execute.sh
 
 cd /home/scu/{{ cookiecutter.project_package_name }}
 # put the code to execute the service here

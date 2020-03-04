@@ -68,7 +68,7 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 
 metatada = metadata/metadata.yml
 
-service.cli/do_run.sh: $(metatada)
+service.cli/run: $(metatada)
 	# Updates adapter script from metadata in $<
 	.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
 
@@ -82,7 +82,7 @@ docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 
 
 .PHONY: build build-devel
-build build-devel: docker-compose.yml service.cli/do_run.sh ## builds images
+build build-devel: docker-compose.yml service.cli/run ## builds images
 	# building image local/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
 	@DOCKER_REGISTRY=local; \
 	docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) build --parallel

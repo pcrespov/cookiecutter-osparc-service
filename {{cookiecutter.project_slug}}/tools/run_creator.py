@@ -11,6 +11,7 @@
 import argparse
 import json
 import logging
+import stat
 import sys
 from enum import IntEnum
 from pathlib import Path
@@ -51,6 +52,7 @@ def main(args = None) -> int:
 set -o errexit
 set -o nounset
 IFS=$(printf '\\n\\t')
+cd "$(dirname "$0")"
 json_input=$INPUT_FOLDER/input.json
         """
         ]
@@ -66,14 +68,19 @@ json_input=$INPUT_FOLDER/input.json
                 input_script.append(f"{str(input_key).upper()}=$(< \"$json_input\" jq '.{input_key}')")
                 input_script.append(f"export {str(input_key).upper()}")
 
-        input_script.extend([
-            "export LOG_FILE=$LOG_FOLDER/log.dat",
-            "exec execute.sh"
+        input_script.extend(["""
+export LOG_FILE=$LOG_FOLDER/log.dat
+echo "executing service..."
+exec execute.sh
+echo "execution completed."
+        """
         ])
 
         # write shell script
         shell_script = str("\n").join(input_script)
         options.runscript.write_text(shell_script)
+        st = options.runscript.stat()
+        options.runscript.chmod(st.st_mode | stat.S_IEXEC)
         return ExitCode.SUCCESS
     except: #pylint: disable=bare-except
         log.exception("Unexpected error:")
