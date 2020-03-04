@@ -25,8 +25,8 @@ export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
 export DOCKER_IMAGE_NAME?=simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
 
-export INTEGRATION_VERSION=$(shell cat VERSION)
-export KERNEL_VERSION=$(shell cat src/{{cookiecutter.project_package_name}}/VERSION)
+export INTEGRATION_VERSION=$(shell cat VERSION_INTEGRATION)
+export KERNEL_VERSION=$(shell cat VERSION_KERNEL)
 
 export COMPOSE_INPUT_DIR := ./validation/input
 export COMPOSE_OUTPUT_DIR := .tmp/output
@@ -107,13 +107,13 @@ tests-unit tests-integration:
 tests: tests-unit tests-integration ## runs unit and integration tests
 
 #-----------------------------------
-.PHONY: version-patch version-minor version-major
-version-patch version-minor version-major: ## commits integration version as patch (bug fixes not affecting the API), minor/minor (backwards-compatible/INcompatible API addition or changes)
-	# upgrades integration version as $(subst version-,,$@) version, commits and tags
-	@bump2version --verbose  --list $(subst version-,,$@)
+.PHONY: version-kernel-patch version-kernel-minor version-kernel-major
+version-kernel-patch version-kernel-minor version-kernel-major: versioning/kernel.cfg ## kernel/service versioning as patch
+	@bump2version --verbose  --list --config-file $< $(subst version-kernel-,,$@)
 
-
-
+.PHONY: version-integration-patch version-integration-minor version-integration-major
+version-integration-patch version-integration-minor version-integration-major: versioning/integration.cfg ## integration versioning as patch (bug fixes not affecting API/handling), minor/major (backwards-compatible/INcompatible API changes)
+	@bump2version --verbose  --list --config-file $< $(subst version-integration-,,$@)
 
 #----------------------------------------
 
