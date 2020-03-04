@@ -48,7 +48,7 @@ def main(args = None) -> int:
 #---------------------------------------------------------------
 # AUTO-GENERATED CODE, do not modify this will be overwritten!!!
 #---------------------------------------------------------------
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+# shell strict mode:
 set -o errexit
 set -o nounset
 IFS=$(printf '\\n\\t')
