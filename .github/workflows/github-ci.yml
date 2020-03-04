@@ -52,5 +52,3 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest --cov=cookiecutter-osparc-service --durations=10 --cov-append --color=yes --cov-report=term-missing --cov-report=xml --cov-config=.coveragerc -vv --basetemp=${PWD}/tmp tests
-      - name: cleanup
-        run: make clean
