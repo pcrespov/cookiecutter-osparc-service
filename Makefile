@@ -30,9 +30,9 @@ requirements.txt: .venv requirements.in
 
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
-	@$</bin/pip3 install -r  $(word 2,$^)
+	@$</bin/pip install -r  $(word 2,$^)
 	# your dev environment contains
-	@$</bin/pip3 list
+	@$</bin/pip list
 	@echo "To activate the virtual environment, run 'source $</bin/activate'"
 
 
