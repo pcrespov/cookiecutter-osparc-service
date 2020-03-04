@@ -107,11 +107,6 @@ COPY docker/*.sh docker/
 RUN chmod +x docker/*.sh &&\
       chown ${SC_USER_NAME}:${SC_USER_NAME} docker/*.sh
 
-# copy binaries from cache
-RUN mkdir -p {{ cookiecutter.project_package_name }} &&\
-      chown ${SC_USER_NAME}:${SC_USER_NAME} {{ cookiecutter.project_package_name }}
-COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
-
 {%- if cookiecutter.project_type == "computational" %}
 # copy simcore service cli
 COPY service.cli/ service.cli/
@@ -120,6 +115,11 @@ RUN chmod +x service.cli/* &&\
 # necessary to be able to call run directly without sh in front
 ENV PATH="/home/${SC_USER_NAME}/service.cli:${PATH}"
 {%- endif %}
+
+# copy binaries from cache
+RUN mkdir -p {{ cookiecutter.project_package_name }} &&\
+      chown ${SC_USER_NAME}:${SC_USER_NAME} {{ cookiecutter.project_package_name }}
+COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
 
 # ------------------------------------------------------------------------------------
 #TODO:
