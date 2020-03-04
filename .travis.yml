@@ -1,3 +1,4 @@
+os: linux
 dist: bionic
 language: python
 addons:
@@ -10,14 +11,13 @@ python:
   - "3.7"
   - "3.8"
 
-before_script:
+install:
   - python -V
   - python3 -V
   - pip -V
   - pip3 -V
   - docker --version
   - docker-compose --version
-  - make devenv
 
 script:
   - make devenv
