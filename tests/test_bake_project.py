@@ -44,5 +44,5 @@ def test_run_tests(cookies):
     with inside_dir(working_dir):
         for cmd in commands:
             logger.info("Running '%s' ...", cmd)
-            assert subprocess.run(cmd.split()).returncode == 0
+            assert subprocess.run(cmd.split(), check=True).returncode == 0
             logger.info("Done '%s' .", cmd)
