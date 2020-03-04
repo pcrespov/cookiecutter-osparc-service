@@ -40,24 +40,12 @@ WORKDIR /build
 # defines the output of the build
 RUN mkdir -p /build/bin
 # copy src code
-COPY  src/{{ cookiecutter.project_package_name }} src/{{ cookiecutter.project_package_name }}
+COPY --chown=${SC_USER_NAME}:${SC_USER_NAME} src/{{ cookiecutter.project_package_name }} src/{{ cookiecutter.project_package_name }}
 # ------------------------------------------------------------------------------------
 #TODO:
 # uncomment and adapt if build steps are necessary
 # RUN gcc ...
 # ------------------------------------------------------------------------------------
-
-# --------------------------Cache stage -------------------
-# CI in master buils & pushes this target to speed-up image build
-#
-#  + /build
-#    + services/{{ cookiecutter.project_slug }} [${SC_USER_NAME}:${SC_USER_NAME}] WORKDIR
-#
-FROM build as cache
-
-ENV SC_BUILD_TARGET cache
-
-{# TODO: at the moment nothing is done here... its just a name #}
 
 # --------------------------Production stage -------------------
 # Final cleanup up to reduce image size and startup setup
@@ -83,10 +71,6 @@ ENV SIMCORE_NODE_UUID="-1" \
     SIMCORE_USER_ID="-1" \
     SIMCORE_NODE_BASEPATH="" \
     STORAGE_ENDPOINT="=1" \
-    S3_ENDPOINT="=1" \
-    S3_ACCESS_KEY="-1" \
-    S3_SECRET_KEY="-1" \
-    S3_BUCKET_NAME="-1" \
     POSTGRES_ENDPOINT="-1" \
     POSTGRES_USER="-1" \
     POSTGRES_PASSWORD="-1" \
@@ -111,10 +95,8 @@ COPY --chown=${SC_USER_NAME}:${SC_USER_NAME} service.cli/ service.cli/
 ENV PATH="/home/${SC_USER_NAME}/service.cli:${PATH}"
 {%- endif %}
 
-# copy binaries from cache
-RUN mkdir -p {{ cookiecutter.project_package_name }} &&\
-      chown ${SC_USER_NAME}:${SC_USER_NAME} {{ cookiecutter.project_package_name }}
-COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
+# copy binaries from build
+COPY --from=build /build/bin {{ cookiecutter.project_package_name }}
 
 # ------------------------------------------------------------------------------------
 #TODO:
