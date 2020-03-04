@@ -131,4 +131,4 @@ COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
 # ------------------------------------------------------------------------------------
 
 ENTRYPOINT [ "/bin/sh", "docker/entrypoint.sh" ]
-CMD ["/bin/sh", "docker/boot.sh"]
+CMD ["run"]

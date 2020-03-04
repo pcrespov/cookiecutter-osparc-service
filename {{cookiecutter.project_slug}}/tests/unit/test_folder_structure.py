@@ -9,7 +9,6 @@ expected_files = (
     ".cookiecutterrc",
     "metadata:metadata.yml",
     "docker/entrypoint.sh",
-    "docker/boot.sh",
     "tools/run_creator.py",
     "tools/update_compose_labels.py",
     "requirements.in",
