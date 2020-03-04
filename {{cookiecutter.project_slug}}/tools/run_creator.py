@@ -48,7 +48,9 @@ def main(args = None) -> int:
             "# AUTO-GENERATED CODE, do not modify this will be overwritten!!!",
             "#---------------------------------------------------------------",
             "# http://redsymbol.net/articles/unofficial-bash-strict-mode/",
-            "set -euo pipefail",
+            "set -o errexit",
+            "set -o nounset",
+            "set -o pipefail",
             "IFS=$'\n\t'",
             "_json_input=$INPUT_FOLDER/input.json"
             ]
@@ -64,7 +66,7 @@ def main(args = None) -> int:
 
         input_script.extend([
             "export LOG_FILE=$LOG_FOLDER/log.dat",
-            "bash execute"
+            "exec execute.bash"
         ])
 
         # write shell script

@@ -68,7 +68,7 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 
 metatada = metadata/metadata.yml
 
-service.cli/do_run: $(metatada)
+service.cli/do_run.bash: $(metatada)
 	# Updates adapter script from metadata in $<
 	.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
 

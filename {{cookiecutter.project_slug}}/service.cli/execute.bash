@@ -1,8 +1,10 @@
 #!/bin/bash
-cd $(dirname $0)
+cd "$(dirname "$0")"
 
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail
+set -o errexit
+set -o nounset
+set -o pipefail
 IFS=$'\n\t'
 
 # ----------------------------------------------------------------
@@ -10,7 +12,7 @@ IFS=$'\n\t'
 # The inputs defined in docker/inputs.json are available as env variables by their key in capital letters
 # For example: input_1 -> $INPUT_1
 # call stack:
-# run -> do_run -> execute
+# run.sh -> do_run.bash -> execute.bash
 
 cd /home/scu/{{ cookiecutter.project_package_name }}
 # put the code to execute the service here
@@ -21,7 +23,7 @@ cd /home/scu/{{ cookiecutter.project_package_name }}
 # as defined in the output labels
 # For example: cp output.csv $OUTPUT_FOLDER or to $OUTPUT_FOLDER/output.json using jq
 #TODO: Replace following
-cat > $OUTPUT_FOLDER/output.json << EOF
+cat > "${OUTPUT_FOLDER}"/output.json << EOF
 {
 {% for i in range(cookiecutter.number_of_outputs|int) %}
 {%- if i > 0 -%},{%- endif %}
