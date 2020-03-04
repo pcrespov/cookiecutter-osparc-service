@@ -26,8 +26,7 @@ commands = (
         "make devenv build",
         "make devenv build-devel",
         "make info-build",
-        "make tests-unit",
-        "make tests-integration"
+        "make devenv build tests",
     )
 
 @pytest.mark.parametrize("command", commands)
