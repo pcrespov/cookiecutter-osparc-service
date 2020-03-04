@@ -102,15 +102,15 @@ WORKDIR /home/${SC_USER_NAME}
 #RUN apk add --no-cache ffmpeg
 # ------------------------------------------------------------------------------------
 
-# copy binaries from cache
-RUN mkdir -p {{ cookiecutter.project_package_name }} &&\
-      chown ${SC_USER_NAME}:${SC_USER_NAME} {{ cookiecutter.project_package_name }}
-COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
-
 # copy docker bootup scripts
 COPY docker/*.sh docker/
 RUN chmod +x docker/*.sh &&\
       chown ${SC_USER_NAME}:${SC_USER_NAME} docker/*.sh
+
+# copy binaries from cache
+RUN mkdir -p {{ cookiecutter.project_package_name }} &&\
+      chown ${SC_USER_NAME}:${SC_USER_NAME} {{ cookiecutter.project_package_name }}
+COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
 
 {%- if cookiecutter.project_type == "computational" %}
 # copy simcore service cli
