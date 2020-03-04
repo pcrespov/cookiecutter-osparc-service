@@ -81,4 +81,4 @@ echo "  input dir : $(ls -al "${INPUT_FOLDER}")"
 echo "  output dir : $(ls -al "${OUTPUT_FOLDER}")"
 echo "  log dir : $(ls -al "${LOG_FOLDER}")"
 
-su-exec "$SC_USER_NAME" "$@"
+su-exec "$SC_USER_NAME" "/bin/sh -c $@"
