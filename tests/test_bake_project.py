@@ -15,7 +15,7 @@ def test_project_tree(cookies):
     assert result.project.basename == 'test_project'
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def baked_project(cookies):
     return cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry':'test.test.com'})
 
