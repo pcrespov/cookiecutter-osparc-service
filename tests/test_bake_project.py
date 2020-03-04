@@ -30,7 +30,6 @@ def test_project_tree(cookies):
 
 def test_run_tests(cookies):
     result = cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry':'test.test.com'})
-    import pdb; pdb.set_trace()
     working_dir = str(result.project)
     commands = (
         "ls -la .",
