@@ -71,7 +71,7 @@ json_input=$INPUT_FOLDER/inputs.json
         input_script.extend(["""
 export LOG_FILE=$LOG_FOLDER/log.dat
 echo "executing service..."
-exec execute.sh
+./execute.sh
 echo "execution completed."
         """
         ])
