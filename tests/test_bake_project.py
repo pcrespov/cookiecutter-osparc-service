@@ -33,6 +33,7 @@ def test_run_tests(cookies):
     working_dir = str(result.project)
     commands = (
         "ls -la .",
+        "ls -la ./docker",
         "make help",
         "make devenv",
         "make build",
