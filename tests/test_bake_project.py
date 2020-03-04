@@ -23,8 +23,8 @@ commands = (
         "ls -la .",
         "make help",
         "make devenv",
-        "make build",
-        "make build-devel",
+        "make devenv build",
+        "make devenv build-devel",
         "make info-build",
         "make tests-unit",
         "make tests-integration"
