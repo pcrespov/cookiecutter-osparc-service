@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 from pathlib import Path
+import pytest
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,4 @@ commands = (
 @pytest.mark.parametrize("command", commands)
 def test_run_tests(baked_project, command: str):
     working_dir = Path(baked_project.project)
-    
-    logger.info("Running '%s' ...", command)
     assert subprocess.run(command.split(), cwd=working_dir, check=True).returncode == 0
-    logger.info("Done '%s' .", command)
