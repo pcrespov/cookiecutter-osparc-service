@@ -31,7 +31,7 @@ def validation_folder(validation_dir: Path, port_type: str) -> Path:
 @pytest.fixture
 def validation_cfg(validation_dir: Path, port_type: str) -> Dict:
     validation_file = validation_dir / \
-        port_type / (f"{port_type}.json")
+        port_type / (f"{port_type}s.json")
     if validation_file.exists():
         with validation_file.open() as fp:
             return json.load(fp)
