@@ -126,5 +126,5 @@ COPY --from=cache /build/bin {{ cookiecutter.project_package_name }}
 #             CMD ["healthchecker app"]
 # ------------------------------------------------------------------------------------
 
-ENTRYPOINT [ "/bin/sh", "docker/entrypoint.sh" ]
+ENTRYPOINT [ "/bin/sh", "docker/entrypoint.sh", "/bin/sh", "-c" ]
 CMD ["run"]
