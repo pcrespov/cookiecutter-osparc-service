@@ -1,1 +1,1 @@
-UNDEFINED
+{{ cookiecutter.version }}

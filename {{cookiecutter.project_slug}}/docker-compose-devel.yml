@@ -2,7 +2,7 @@ version: '3.7'
 services:
   {{ cookiecutter.project_slug }}:
     # bypass normal start by going directly as root in starting folder
-    image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}-dev
+    image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${KERNEL_VERSION}-dev
     volumes:
       - ./src:/home/scu/src
       - ./docker:/home/scu/docker

@@ -26,17 +26,10 @@ export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
 export DOCKER_IMAGE_NAME?=simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
 
 export INTEGRATION_VERSION=$(shell cat VERSION)
-KERNEL_VERSION=$(shell cat src/{{cookiecutter.project_package_name}}/VERSION)
-
-export DOCKER_IMAGE_TAG?=$(KERNEL_VERSION)
-
+export KERNEL_VERSION=$(shell cat src/{{cookiecutter.project_package_name}}/VERSION)
 
 export COMPOSE_INPUT_DIR := ./validation/input
 export COMPOSE_OUTPUT_DIR := .tmp/output
-
-# BUILDKIT enabled
-# export DOCKER_BUILDKIT=1
-# export COMPOSE_DOCKER_CLI_BUILD=1
 
 #-----------------------------------
 .PHONY: devenv
@@ -82,10 +75,10 @@ docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 
 .PHONY: build build-devel
 build build-devel: docker-compose.yml service.cli/run ## builds images
-	# building image local/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+	# building image local/${DOCKER_IMAGE_NAME}:${KERNEL_VERSION}
 	@DOCKER_REGISTRY=local; \
 	docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) build --parallel
-	# built local/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+	# built local/${DOCKER_IMAGE_NAME}:${KERNEL_VERSION}
 
 
 define show-meta
