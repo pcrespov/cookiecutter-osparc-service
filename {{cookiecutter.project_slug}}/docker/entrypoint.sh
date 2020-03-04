@@ -14,30 +14,22 @@ echo   User    : "$(id "$(whoami)")"
 echo   Workdir : "$(pwd)"
 
 
-# expect input/output/log folders to be mounted
+# expect input/output folders to be mounted
 stat "${INPUT_FOLDER}" > /dev/null 2>&1 || \
         (echo "ERROR: You must mount '${INPUT_FOLDER}' to deduce user and group ids" && exit 1)
 stat "${OUTPUT_FOLDER}" > /dev/null 2>&1 || \
     (echo "ERROR: You must mount '${OUTPUT_FOLDER}' to deduce user and group ids" && exit 1)
-stat "${LOG_FOLDER}" > /dev/null 2>&1 || \
-    (echo "ERROR: You must mount '${LOG_FOLDER}' to deduce user and group ids" && exit 1)
 
 # NOTE: expects docker run ... -v /path/to/input/folder:${INPUT_FOLDER}
-# check input/output/log folders are owned by the same user
+# check input/output folders are owned by the same user
 if [ "$(stat -c %u "${INPUT_FOLDER}")" -ne "$(stat -c %u "${OUTPUT_FOLDER}")" ]
 then
     echo "ERROR: '${INPUT_FOLDER}' and '${OUTPUT_FOLDER}' have different user id's. not allowed" && exit 1
-elif [ "$(stat -c %u "${INPUT_FOLDER}")" -ne "$(stat -c %u "${LOG_FOLDER}")" ]
-then
-    echo "ERROR: '${INPUT_FOLDER}' and '${LOG_FOLDER}' have different user id's. not allowed" && exit 1
 fi
-# check input/output/log folders are owned by the same group
+# check input/outputfolders are owned by the same group
 if [ "$(stat -c %g "${INPUT_FOLDER}")" -ne "$(stat -c %g "${OUTPUT_FOLDER}")" ]
 then
     echo "ERROR: '${INPUT_FOLDER}' and '${OUTPUT_FOLDER}' have different group id's. not allowed" && exit 1
-elif [ "$(stat -c %g "${INPUT_FOLDER}")" -ne "$(stat -c %g "${LOG_FOLDER}")" ]
-then
-    echo "ERROR: '${INPUT_FOLDER}' and '${LOG_FOLDER}' have different group id's. not allowed" && exit 1
 fi
 
 echo "setting correct user id/group id..."
@@ -79,6 +71,5 @@ echo "  $SC_USER_NAME rights    : $(id "$SC_USER_NAME")"
 echo "  local dir : $(ls -al)"
 echo "  input dir : $(ls -al "${INPUT_FOLDER}")"
 echo "  output dir : $(ls -al "${OUTPUT_FOLDER}")"
-echo "  log dir : $(ls -al "${LOG_FOLDER}")"
 
 su-exec "$SC_USER_NAME" "$@"

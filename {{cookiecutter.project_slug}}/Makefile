@@ -33,7 +33,6 @@ export DOCKER_IMAGE_TAG?=$(KERNEL_VERSION)-$(INTEGRATION_VERSION)
 
 export COMPOSE_INPUT_DIR := ./validation/input
 export COMPOSE_OUTPUT_DIR := .tmp/output
-export COMPOSE_LOG_DIR := .tmp/log
 
 # BUILDKIT enabled
 # export DOCKER_BUILDKIT=1
@@ -127,24 +126,23 @@ version-patch version-minor version-major: ## commits integration version as pat
 
 # NOTE: Do not remove this since using docker-compose would create the folders automatically but as root user, which is inconvenient
 define clean_output_dirs
-	# cleaning log/output directory
-	rm -rf $(COMPOSE_LOG_DIR)/*
+	# cleaning output directory
 	rm -rf $(COMPOSE_OUTPUT_DIR)/*
 endef
-$(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR):
+$(COMPOSE_OUTPUT_DIR):
 	mkdir -p $@
 
 .PHONY: down up up-devel
 down: docker-compose.yml ## stops the service
 	@docker-compose -f $< down
 
-up up-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR) down ## Starts the service for testing. Devel mode mounts the folders for direct development.
+up up-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts the service for testing. Devel mode mounts the folders for direct development.
 	@$(call clean_output_dirs)
 	# starting service...
 	@docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) up
 
 .PHONY: shell shell-devel
-shell shell-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) $(COMPOSE_LOG_DIR) down ## Starts a shell instead of running the container. Useful for development.
+shell shell-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a shell instead of running the container. Useful for development.
 	@$(call clean_output_dirs)
 	docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) run {{ cookiecutter.project_slug }} /bin/sh
 

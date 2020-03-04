@@ -15,7 +15,7 @@ from typing import Dict
 import docker
 import pytest
 
-_FOLDER_NAMES = ["input", "output", "log"]
+_FOLDER_NAMES = ["input", "output"]
 _CONTAINER_FOLDER = Path("/home/scu/data")
 
 

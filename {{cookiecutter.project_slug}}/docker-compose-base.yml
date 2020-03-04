@@ -9,10 +9,8 @@ services:
     environment:
       - INPUT_FOLDER=/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
       - OUTPUT_FOLDER=/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-      - LOG_FOLDER=/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
     init: true
     volumes:
       # some defaults to test the service
       - ${COMPOSE_INPUT_DIR}:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
       - ${COMPOSE_OUTPUT_DIR}:/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-      - ${COMPOSE_LOG_DIR}:/log/7848096d-20c2-4621-abcc-51c6ef9b0ecc
