@@ -44,12 +44,12 @@ export COMPOSE_LOG_DIR := .tmp/log
 .venv:
 	python3 -m venv $@
 	# upgrading package managers
-	$@/bin/pip install --upgrade \
+	$@/bin/pip3 install --upgrade \
 		pip \
 		wheel \
 		setuptools
 	# tooling
-	$@/bin/pip install pip-tools
+	$@/bin/pip3 install pip-tools
 
 requirements.txt: requirements.in
 	# freezes requirements
@@ -57,9 +57,9 @@ requirements.txt: requirements.in
 
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
-	@$</bin/pip install -r  $(word 2,$^)
+	@$</bin/pip3 install -r  $(word 2,$^)
 	# your dev environment contains
-	@$</bin/pip list
+	@$</bin/pip3 list
 	@echo "To activate the virtual environment, run 'source $</bin/activate'"
 
 
@@ -70,11 +70,11 @@ metatada = metadata/metadata.yml
 
 service.cli/do_run: $(metatada)
 	# Updates adapter script from metadata in $<
-	.venv/bin/python tools/run_creator.py --metadata $< --runscript $@
+	.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
 
 docker-compose-meta.yml: $(metatada)
 	# Injects metadata from $< as labels
-	.venv/bin/python tools/update_compose_labels.py --compose $@ --metadata $<
+	.venv/bin/python3 tools/update_compose_labels.py --compose $@ --metadata $<
 
 docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 	# Resolving $@ configuration
