@@ -28,10 +28,6 @@ def test_project_tree(cookies):
     assert result.exception is None
     assert result.project.basename == 'test_project'
 
-
-
-
-# TODO: temporary simplified
 def test_run_tests(cookies):
     result = cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry':'test.test.com'})
     working_dir = str(result.project)
@@ -40,11 +36,12 @@ def test_run_tests(cookies):
         "make help",
         "make devenv",
         "make build info-build",
+        "make build-devel info-build"
         "make tests-unit",
         "make tests-integration"
     )
     with inside_dir(working_dir):
         for cmd in commands:
             logger.info("Running '%s' ...", cmd)
-            assert subprocess.run(cmd.split(), shell=True, capture_output=True, check=True).returncode == 0
+            assert subprocess.run(cmd.split(), shell=True, check=True).returncode == 0
             logger.info("Done '%s' .", cmd)
