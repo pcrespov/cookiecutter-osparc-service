@@ -30,18 +30,20 @@ def test_project_tree(cookies):
 
 def test_run_tests(cookies):
     result = cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry':'test.test.com'})
+    import pdb; pdb.set_trace()
     working_dir = str(result.project)
     commands = (
         "ls -la .",
         "make help",
         "make devenv",
-        "make build info-build",
-        "make build-devel info-build"
+        "make build",
+        "make build-devel",
+        "make info-build",
         "make tests-unit",
         "make tests-integration"
     )
     with inside_dir(working_dir):
         for cmd in commands:
             logger.info("Running '%s' ...", cmd)
-            assert subprocess.run(cmd.split(), shell=True, check=True).returncode == 0
+            assert subprocess.run(cmd.split()).returncode == 0
             logger.info("Done '%s' .", cmd)
