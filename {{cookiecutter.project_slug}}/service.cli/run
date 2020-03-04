@@ -5,4 +5,4 @@ set -o nounset
 
 IFS=$(printf '\n\t')
 
-exec do_run.bash
+exec do_run.sh

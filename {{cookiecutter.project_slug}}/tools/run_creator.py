@@ -42,31 +42,33 @@ def main(args = None) -> int:
         options = parser.parse_args(args)
 
         # generate variables for input
-        input_script = [
-            "#!/bin/bash",
-            "#---------------------------------------------------------------",
-            "# AUTO-GENERATED CODE, do not modify this will be overwritten!!!",
-            "#---------------------------------------------------------------",
-            "# http://redsymbol.net/articles/unofficial-bash-strict-mode/",
-            "set -o errexit",
-            "set -o nounset",
-            "set -o pipefail",
-            "IFS=$'\n\t'",
-            "_json_input=$INPUT_FOLDER/input.json"
-            ]
+        input_script = ["""
+#!/bin/sh
+#---------------------------------------------------------------
+# AUTO-GENERATED CODE, do not modify this will be overwritten!!!
+#---------------------------------------------------------------
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -o errexit
+set -o nounset
+IFS=$(printf '\\n\\t')
+json_input=$INPUT_FOLDER/input.json
+        """
+        ]
         input_config = get_input_config(options.metadata)
         for input_key, input_value in input_config.items():
             if "data:" in input_value["type"]:
                 filename = input_key
                 if "fileToKeyMap" in input_value and len(input_value["fileToKeyMap"]) > 0:
                     filename,_ = next(iter(input_value["fileToKeyMap"].items()))
-                input_script.append("export {}=$INPUT_FOLDER/{}".format(str(input_key).upper(), str(filename)))
+                input_script.append(f"{str(input_key).upper()}=$INPUT_FOLDER/{str(filename)}")
+                input_script.append(f"export {str(input_key).upper()}")
             else:
-                input_script.append("export {}=$(cat $_json_input | jq '.{}')".format(str(input_key).upper(), input_key))
+                input_script.append(f"{str(input_key).upper()}=$(< \"$json_input\" jq '.{input_key}')")
+                input_script.append(f"export {str(input_key).upper()}")
 
         input_script.extend([
             "export LOG_FILE=$LOG_FOLDER/log.dat",
-            "exec execute.bash"
+            "exec execute.sh"
         ])
 
         # write shell script

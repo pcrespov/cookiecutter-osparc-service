@@ -15,7 +15,6 @@ RUN adduser -D -u ${SC_USER_ID} -s /bin/sh -h /home/${SC_USER_NAME} ${SC_USER_NA
 
 RUN apk add --no-cache \
       su-exec \
-      bash \
       jq
 
 # -------------------------- Build stage -------------------
