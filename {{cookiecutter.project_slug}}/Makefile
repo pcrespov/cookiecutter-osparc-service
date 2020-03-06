@@ -30,6 +30,8 @@ export KERNEL_VERSION=$(shell cat VERSION)
 export COMPOSE_INPUT_DIR := ./validation/input
 export COMPOSE_OUTPUT_DIR := .tmp/output
 
+metatada = metadata/metadata.yml
+
 #-----------------------------------
 .PHONY: devenv
 .venv:
@@ -55,10 +57,6 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 
 
 #-----------------------------------
-
-
-metatada = metadata/metadata.yml
-
 service.cli/run: $(metatada)
 	# Updates adapter script from metadata in $<
 	.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
@@ -71,14 +69,12 @@ docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
 	# Resolving $@ configuration
 	docker-compose $(foreach c,$^,-f $(c)) --log-level=ERROR config > $@
 
-
 .PHONY: build build-devel
 build build-devel: docker-compose.yml service.cli/run ## builds images
 	# building image local/${DOCKER_IMAGE_NAME}:${KERNEL_VERSION}
 	@DOCKER_REGISTRY=local; \
 	docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) build --parallel
 	# built local/${DOCKER_IMAGE_NAME}:${KERNEL_VERSION}
-
 
 define show-meta
 	$(foreach iid,$(shell docker images */$(1):* -q | sort | uniq),\
