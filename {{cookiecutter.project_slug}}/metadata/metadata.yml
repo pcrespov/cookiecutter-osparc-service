@@ -1,6 +1,7 @@
 name: {{ cookiecutter.project_name }}
 key: simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
 type: {{ cookiecutter.project_type }}
+integration-version: 1.0.0
 version: {{ cookiecutter.version }}
 description: {{ cookiecutter.project_short_description }}
 contact: {{ cookiecutter.contact_email }}

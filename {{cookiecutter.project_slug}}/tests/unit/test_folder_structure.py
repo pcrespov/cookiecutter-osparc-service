@@ -14,9 +14,9 @@ expected_files = (
     "requirements.in",
     "requirements.txt",
     "src/Dockerfile",
-    "src/{{cookiecutter.project_package_name}}/VERSION",
     "Makefile",
-    "VERSION",
+    "VERSION_KERNEL",
+    "VERSION_INTEGRATION",
     "README.md"
 )
 

@@ -8,5 +8,3 @@ services:
         org.label-schema.build-date: "${BUILD_DATE}"
         org.label-schema.vcs-url: {{ cookiecutter.project_git_repo }}
         org.label-schema.vcs-ref: "${VCS_REF}"
-        io.simcore.integration-version: "{\"integration-version\": \"${INTEGRATION_VERSION}\"}"
-        io.simcore.version: "{\"version\": \"${KERNEL_VERSION}\"}"
