@@ -15,8 +15,7 @@ expected_files = (
     "requirements.txt",
     "src/Dockerfile",
     "Makefile",
-    "VERSION_KERNEL",
-    "VERSION_INTEGRATION",
+    "VERSION",
     "README.md"
 )
 

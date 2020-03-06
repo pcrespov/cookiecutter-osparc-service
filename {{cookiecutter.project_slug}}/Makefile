@@ -25,8 +25,7 @@ export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
 export DOCKER_IMAGE_NAME?=simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
 
-export INTEGRATION_VERSION=$(shell cat VERSION_INTEGRATION)
-export KERNEL_VERSION=$(shell cat VERSION_KERNEL)
+export KERNEL_VERSION=$(shell cat VERSION)
 
 export COMPOSE_INPUT_DIR := ./validation/input
 export COMPOSE_OUTPUT_DIR := .tmp/output
