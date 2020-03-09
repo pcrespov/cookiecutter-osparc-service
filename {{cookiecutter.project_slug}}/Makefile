@@ -28,8 +28,6 @@ export DOCKER_IMAGE_TAG ?= $(shell cat VERSION)
 export COMPOSE_INPUT_DIR := ./validation/input
 export COMPOSE_OUTPUT_DIR := .tmp/output
 
-metatada = metadata/metadata.yml
-
 #----------------------------------- python dev
 .PHONY: devenv
 .venv:
@@ -55,6 +53,7 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 
 
 #----------------------------------- oSparc integration
+metatada = metadata/metadata.yml
 service.cli/run: $(metatada)
 	# Updates adapter script from metadata in $<
 	@.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
