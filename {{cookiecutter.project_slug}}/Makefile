@@ -140,6 +140,16 @@ shell shell-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_D
 .PHONY: push-release push
 # target: push-release, push: – Pushes services to the registry if service not available in registry. push overwrites.
 push-release: check-release check-pull push
+	@$(call check-version-exists,$(KERNEL_VERSION))
+
+define check-version-exists
+	$(shell docker pull "$(DOCKER_REGISTRY)"/"$(DOCKER_IMAGE_NAME)":"$(1)")
+	if docker pull "$(DOCKER_REGISTRY)"/"$(DOCKER_IMAGE_NAME)":"$(1)"; then\
+		echo "version $(1) does not exist";\
+	else\
+		echo "version $(1) already exists;\
+	fi
+endef
 
 check-pull:
 	# check if the service is already online
