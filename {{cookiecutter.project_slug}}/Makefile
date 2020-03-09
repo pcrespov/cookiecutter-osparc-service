@@ -113,9 +113,43 @@ version-integration-patch version-integration-minor version-integration-major: v
 	@bump2version --verbose  --list --config-file $< $(subst version-integration-,,$@)
 
 
+#---------------------------------------- publishing
+define _check-version-exists
+	# checking version '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)' is not already pushed
+	$(if $(shell docker pull "$(DOCKER_REGISTRY)"/"$(DOCKER_IMAGE_NAME)":"$(1)"),false,true)
+endef
+define _check-version-valid
+	# checking version $(DOCKER_IMAGE_TAG) major is not 0
+	$(if $(shell test $$(cut -f 1 -d '.' "$(1)") -eq 0),false,true)
+endef
+
+.PHONY: push push-force push-version push-latest pull-latest pull-version tag-latest tag-version
+tag-latest tag-version:
+	docker tag local/$(DOCKER_IMAGE_NAME):production $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring production,$@),$(DOCKER_IMAGE_TAG),latest)
+
+push push-force: ## push: – Pushes services to the registry if service not available in registry.
+	$(if $(findstring force,$@),,\
+	$(if $(_check-version-valid,$(DOCKER_IMAGE_TAG)),,$(error service version shall be at least 1.0.0 (current $(DOCKER_IMAGE_TAG)))) \
+	$(if $(_check-version-exists,$(DOCKER_IMAGE_TAG)),,$(error version already exists on $(DOCKER_REGISTRY))))
+	@$(MAKE) push-version;
+	@$(MAKE) push-latest;
+
+push-latest push-version: ## publish service to registry with latest/version tag
+	# pushing '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring production,$@),$(DOCKER_IMAGE_TAG),latest)'...
+	@$(MAKE) tag-$(subst push-,,$@)
+	@docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring production,$@),$(DOCKER_IMAGE_TAG),latest)
+	# pushed '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring production,$@),$(DOCKER_IMAGE_TAG),latest)'
+
+pull-latest pull-version: ## pull service from registry
+	@docker pull $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring production,$@),$(DOCKER_IMAGE_TAG),latest)
+
+# compatibility with gitlab CI
+.PHONY: pull
+pull: pull-latest pull-version
 
 
-#---------------------------------------- running
+
+#---------------------------------------- running/development
 # NOTE: since using docker-compose would create the folders automatically but as root user, which is inconvenient
 define _clean_output_dirs
 	# cleaning output directory
@@ -147,67 +181,6 @@ shell shell-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a s
 
 down: .compose-development.yml ## stops the service
 	@docker-compose -f $< down
-#----------------------------------------
-
-.PHONY: push-release push
-# target: push-release, push: – Pushes services to the registry if service not available in registry. push overwrites.
-push-release: check-release check-pull push
-	@$(call check-version-exists,$(DOCKER_IMAGE_TAG))
-
-define check-version-exists
-	$(shell docker pull "$(DOCKER_REGISTRY)"/"$(DOCKER_IMAGE_NAME)":"$(1)")
-	if docker pull "$(DOCKER_REGISTRY)"/"$(DOCKER_IMAGE_NAME)":"$(1)"; then\
-		echo "version $(1) does not exist";\
-	else\
-		echo "version $(1) already exists;\
-	fi
-endef
-
-check-pull:
-	# check if the service is already online
-	@SERVICE_VERSION=$$(cat VERSION);\
-	if docker pull \
-		"${DOCKER_REGISTRY}"/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:"$$SERVICE_VERSION"; then\
-		echo "image already in registry ${DOCKER_REGISTRY}";\
-		false;\
-	else \
-		echo "no image available"; \
-	fi;
-
-check-release:
-	# check if this is a releasable version number. Major shall be > 0
-	@MAJOR_VERSION=$$(cut -f 1 -d '.' VERSION);\
-	echo "$$MAJOR_VERSION";\
-	if [ "$$MAJOR_VERSION" -eq 0 ] ; then \
-		echo "Service major is below 1!!"; \
-		false; \
-	else\
-		echo "Service is releasable";\
-	fi
-
-.PHONY: push-version push-latest pull-latest pull-version tag-latest
-tag-latest:
-	docker tag $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):latest
-
-push-version:
-	# pushing '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)'...
-	@docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
-	# pushed '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)'
-
-push-latest: tag-latest ## tags service $(DOCKER_IMAGE_TAG) as latest and pushes
-	@export DOCKER_IMAGE_TAG=latest;\
-	$(MAKE) push-version
-
-pull-latest: ## pull latest service version
-	@docker pull $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):latest
-
-pull-version: ## tries pull service $(DOCKER_IMAGE_TAG) if available
-	-@docker pull $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
-
-# compatibility with gitlab CI
-.PHONY: push pull
-push: push-version push-latest ## publish service:latest and :$(DOCKER_IMAGE_TAG) tags
-pull: pull-latest
 
 #-----------------------------------
 .PHONY: help
