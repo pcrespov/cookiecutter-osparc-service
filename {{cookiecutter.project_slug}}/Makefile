@@ -143,11 +143,9 @@ push-release: check-release check-pull push
 
 check-pull:
 	# check if the service is already online
-	@${DOCKER} login ${DOCKER_REGISTRY};\
 	SERVICE_VERSION=$$(cat VERSION);\
-	${DOCKER} pull \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION; \
-	if [ $$? -eq 0 ] ; then \
+	if ${DOCKER} pull \
+		"${DOCKER_REGISTRY}"/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:"$$SERVICE_VERSION"; then\
 		echo "image already in registry ${DOCKER_REGISTRY}";\
 		false;\
 	else \
@@ -157,8 +155,8 @@ check-pull:
 check-release:
 	# check if this is a releasable version number. Major shall be > 0
 	@MAJOR_VERSION=$$(cut -f 1 -d '.' VERSION);\
-	echo $$MAJOR_VERSION;\
-	if [ $$MAJOR_VERSION -eq 0 ] ; then \
+	echo "$$MAJOR_VERSION";\
+	if [ "$$MAJOR_VERSION" -eq 0 ] ; then \
 		echo "Service major is below 1!!"; \
 		false; \
 	else\
