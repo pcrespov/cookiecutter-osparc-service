@@ -126,22 +126,20 @@ $(COMPOSE_OUTPUT_DIR):
 	mkdir -p $@
 	# created output directory $(COMPOSE_OUTPUT_DIR)
 
-docker-compose-configs = $(wildcard docker-compose*.yml)
+docker-compose-configs = $(wildcard docker-compose.*yml)
 
 .compose-production.yml .compose-development.yml: $(docker-compose-configs)
 	# creating config for stack with 'local/$(DOCKER_IMAGE_NAME):$(patsubst .compose-%.yml,%,$@)' to $@
 	@export DOCKER_REGISTRY=local; \
 	export DOCKER_IMAGE_TAG=$(patsubst .compose-%.yml,%,$@); \
-	docker-compose -f docker-compose-base.yml $(if $(findstring -development,$@), -f docker-compose-devel.yml,) --log-level=ERROR config > $@
+	docker-compose -f docker-compose.yml $(if $(findstring -development,$@), -f docker-compose.devel.yml,) --log-level=ERROR config > $@
 
-.PHONY: down up up-devel
-
+.PHONY: down up up-devel shell shell-devel
 up up-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts the service for testing. Devel mode mounts the folders for direct development.
 	$(MAKE) $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml)
 	# starting service...
 	@docker-compose -f $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml) up
 
-.PHONY: shell shell-devel
 shell shell-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a shell instead of running the container. Useful for development.
 	$(MAKE) $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml)
 	# starting service and go in...
@@ -149,13 +147,12 @@ shell shell-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a s
 
 down: .compose-development.yml ## stops the service
 	@docker-compose -f $< down
-
 #----------------------------------------
 
 .PHONY: push-release push
 # target: push-release, push: – Pushes services to the registry if service not available in registry. push overwrites.
 push-release: check-release check-pull push
-	@$(call check-version-exists,$(KERNEL_VERSION))
+	@$(call check-version-exists,$(DOCKER_IMAGE_TAG))
 
 define check-version-exists
 	$(shell docker pull "$(DOCKER_REGISTRY)"/"$(DOCKER_IMAGE_NAME)":"$(1)")
@@ -168,8 +165,8 @@ endef
 
 check-pull:
 	# check if the service is already online
-	SERVICE_VERSION=$$(cat VERSION);\
-	if ${DOCKER} pull \
+	@SERVICE_VERSION=$$(cat VERSION);\
+	if docker pull \
 		"${DOCKER_REGISTRY}"/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:"$$SERVICE_VERSION"; then\
 		echo "image already in registry ${DOCKER_REGISTRY}";\
 		false;\
@@ -188,26 +185,29 @@ check-release:
 		echo "Service is releasable";\
 	fi
 
-push:
-	# push both latest and :$$SERVICE_VERSION tags
-	${DOCKER} login ${DOCKER_REGISTRY};\
-	SERVICE_VERSION=$$(cat VERSION);\
-	${DOCKER} tag \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;\
-	${DOCKER} push \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;\
-	${DOCKER} push \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest;
+.PHONY: push-version push-latest pull-latest pull-version tag-latest
+tag-latest:
+	docker tag $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):latest
 
-pull:
-	# pull latest service version if available
-	${DOCKER} pull \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest || true;
+push-version:
+	# pushing '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)'...
+	@docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
+	# pushed '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)'
 
-## TODO: Review above
+push-latest: tag-latest ## tags service $(DOCKER_IMAGE_TAG) as latest and pushes
+	@export DOCKER_IMAGE_TAG=latest;\
+	$(MAKE) push-version
 
+pull-latest: ## pull latest service version
+	@docker pull $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):latest
 
+pull-version: ## tries pull service $(DOCKER_IMAGE_TAG) if available
+	-@docker pull $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
+
+# compatibility with gitlab CI
+.PHONY: push pull
+push: push-version push-latest ## publish service:latest and :$(DOCKER_IMAGE_TAG) tags
+pull: pull-latest
 
 #-----------------------------------
 .PHONY: help
