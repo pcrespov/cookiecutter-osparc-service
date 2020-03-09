@@ -70,7 +70,7 @@ endef
 .PHONY: build build-devel
 build build-devel: docker-compose-build.yml docker-compose-meta.yml service.cli/run ## builds images
 	# building image local/${DOCKER_IMAGE_NAME}...
-	@$(_docker_compose_build) --parallel
+	@$(call _docker_compose_build) --parallel
 	# built local/${DOCKER_IMAGE_NAME}
 
 define show-meta
@@ -108,16 +108,16 @@ define _check-version-exists
 endef
 define _check-version-valid
 	# checking version $(DOCKER_IMAGE_TAG) major is not 0
-	$(if $(shell test $$(cut -f 1 -d '.' "$(1)") -eq 0),false,true)
+	$(if $(shell  $$(echo $(1) | cut --fields=1 --delimiter=.) = 0),false,true)
 endef
 
 tag-latest tag-version:
 	docker tag local/$(DOCKER_IMAGE_NAME):production $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring production,$@),$(DOCKER_IMAGE_TAG),latest)
 
 push push-force: ## push: – Pushes (resp. force) services to the registry if service not available in registry.
-	$(if $(findstring force,$@),,\
-	$(if $(_check-version-valid,$(DOCKER_IMAGE_TAG)),,$(error service version shall be at least 1.0.0 (current $(DOCKER_IMAGE_TAG)))) \
-	$(if $(_check-version-exists,$(DOCKER_IMAGE_TAG)),,$(error version already exists on $(DOCKER_REGISTRY))))
+	@$(if $(findstring force,$@),,\
+	$(if $(call _check-version-valid,$(DOCKER_IMAGE_TAG)),,$(error service version shall be at least 1.0.0 (current $(DOCKER_IMAGE_TAG)))) \
+	$(if $(call _check-version-exists,$(DOCKER_IMAGE_TAG)),,$(error version already exists on $(DOCKER_REGISTRY))))
 	@$(MAKE) push-version;
 	@$(MAKE) push-latest;
 
@@ -138,7 +138,7 @@ define _clean_output_dirs
 	rm -rf $(COMPOSE_OUTPUT_DIR)/*
 endef
 $(COMPOSE_OUTPUT_DIR):
-	@$(_clean_output_dirs)
+	@$(call _clean_output_dirs)
 	mkdir -p $@
 	# created output directory $(COMPOSE_OUTPUT_DIR)
 
