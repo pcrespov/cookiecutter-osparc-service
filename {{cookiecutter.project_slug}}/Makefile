@@ -8,7 +8,7 @@
 #
 # author: {{ cookiecutter.author_name }}
 
-SHELL = /bin/bash
+SHELL = /bin/sh
 .DEFAULT_GOAL := help
 
 ifeq (,$(wildcard .git))
