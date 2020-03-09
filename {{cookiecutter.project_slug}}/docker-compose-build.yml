@@ -4,6 +4,6 @@ services:
     image: local/${DOCKER_IMAGE_NAME}:${DOCKER_BUILD_TARGET}
     build:
       context: ./
-      dockerfile: src/Dockerfile
+      dockerfile: docker/{%- if cookiecutter.docker_base.startswith("alpine") -%}alpine{%- elif cookiecutter.docker_base.startswith("python") -%}python{%- endif -%}/Dockerfile
       target: production
 

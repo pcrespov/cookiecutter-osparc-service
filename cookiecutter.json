@@ -11,10 +11,19 @@
         "computational"
     ],
     "docker_base": [
-        "alpine:3.7"
+        "alpine:3.7",
+        "alpine:3.8",
+        "python:2.7",
+        "python:3.6",
+        "python:3.7",
+        "python:3.8",
+        "python:2.7-slim",
+        "python:3.6-slim",
+        "python:3.7-slim",
+        "python:3.8-slim"
     ],
-    "number_of_inputs":2,
-    "number_of_outputs":1,
+    "number_of_inputs": 2,
+    "number_of_outputs": 1,
     "project_git_repo": "https://github.com/ITISFoundation/{{ cookiecutter.project_slug }}",
     "git_username": "Yourusername",
     "default_docker_registry": "itisfoundation",
