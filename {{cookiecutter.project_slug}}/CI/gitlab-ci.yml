@@ -22,10 +22,10 @@ before_script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - export DOCKER_REGISTRY=$SC_CI_MASTER_REGISTRY
-    - make pull
+    - make pull-latest || true
     - export DOCKER_REGISTRY=$SC_CI_TEST_IMAGE_PREFIX
     - make build
-    - make push
+    - make push-force
   only:
     changes:
       - "**/{{ cookiecutter.project_slug }}/**/*"
@@ -53,7 +53,7 @@ remove_{{ cookiecutter.project_slug }}_builds:
   script:
     - pip install -r $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/tests/requirements.txt
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
-    - make unit-test
+    - make tests-unit
   only:
     changes:
       - "**/{{ cookiecutter.project_slug }}/**/*"
@@ -73,8 +73,8 @@ remove_{{ cookiecutter.project_slug }}_builds:
     - pip install -r $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/tests/requirements.txt
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - export DOCKER_REGISTRY=$SC_CI_TEST_IMAGE_PREFIX
-    - make pull
-    - make integration-test
+    - make pull-latest
+    - make tests-integration
   only:
     changes:
       - "**/{{ cookiecutter.project_slug }}/**/*"
@@ -94,7 +94,7 @@ remove_{{ cookiecutter.project_slug }}_builds:
     - echo "$SC_CI_MASTER_REGISTRY_PASSWORD" | docker login -u "$SC_CI_MASTER_REGISTRY_USER" --password-stdin $SC_CI_MASTER_REGISTRY
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - export DOCKER_REGISTRY=$SC_CI_TEST_IMAGE_PREFIX
-    - make pull
+    - make pull-latest
     - docker tag $SC_CI_TEST_IMAGE_PREFIX/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }} $SC_CI_MASTER_REGISTRY/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
     - export DOCKER_REGISTRY=$SC_CI_MASTER_REGISTRY
     - make push
@@ -111,10 +111,10 @@ remove_{{ cookiecutter.project_slug }}_builds:
     - echo "$SC_CI_STAGING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_STAGING_REGISTRY_USER" --password-stdin $SC_CI_STAGING_REGISTRY
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - export DOCKER_REGISTRY=$SC_CI_MASTER_REGISTRY
-    - make pull
+    - make pull-latest
     - docker tag $SC_CI_MASTER_REGISTRY/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }} $SC_CI_STAGING_REGISTRY/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
     - export DOCKER_REGISTRY=$SC_CI_STAGING_REGISTRY
-    - make push-release
+    - make push
   environment:
     name: {{ cookiecutter.project_slug }}-production
     url: $SC_CI_STAGING_REGISTRY
