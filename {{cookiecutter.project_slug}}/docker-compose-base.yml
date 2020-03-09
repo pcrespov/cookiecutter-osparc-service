@@ -1,15 +1,11 @@
 version: '3.7'
 services:
   {{ cookiecutter.project_slug }}:
-    image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${KERNEL_VERSION}
-    build:
-      context: ./
-      dockerfile: src/Dockerfile
-      target: production
+    init: true
+    image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
     environment:
       - INPUT_FOLDER=/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc
       - OUTPUT_FOLDER=/output/7848096d-20c2-4621-abcc-51c6ef9b0ecc
-    init: true
     volumes:
       # some defaults to test the service
       - ${COMPOSE_INPUT_DIR}:/input/7848096d-20c2-4621-abcc-51c6ef9b0ecc

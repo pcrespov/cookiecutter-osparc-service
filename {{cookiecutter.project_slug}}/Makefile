@@ -11,9 +11,8 @@
 SHELL = /bin/bash
 .DEFAULT_GOAL := help
 
-
-# FIXME: any recipe will fail if project is not versioned
 ifeq (,$(wildcard .git))
+# NOTE: will prevent failure of recipes when not in git repo
 $(info WARNING: not running in a git repository!!!)
 export git=echo
 endif
@@ -22,10 +21,11 @@ export VCS_REF:=$(shell $(git) rev-parse --short HEAD)
 export VCS_STATUS_CLIENT:=$(if $(shell $(git) status -s),'modified/untracked','clean')
 export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-export DOCKER_REGISTRY?={{ cookiecutter.default_docker_registry }}
-export DOCKER_IMAGE_NAME?=simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
+KERNEL_VERSION=$(shell cat VERSION)
 
-export KERNEL_VERSION=$(shell cat VERSION)
+export DOCKER_REGISTRY ?= {{ cookiecutter.default_docker_registry }}
+export DOCKER_IMAGE_NAME ?= simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
+export DOCKER_IMAGE_TAG ?= $(KERNEL_VERSION)
 
 export COMPOSE_INPUT_DIR := ./validation/input
 export COMPOSE_OUTPUT_DIR := .tmp/output
@@ -59,22 +59,23 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 #-----------------------------------
 service.cli/run: $(metatada)
 	# Updates adapter script from metadata in $<
-	.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
+	@.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
 
 docker-compose-meta.yml: $(metatada)
 	# Injects metadata from $< as labels
-	.venv/bin/python3 tools/update_compose_labels.py --compose $@ --metadata $<
+	@.venv/bin/python3 tools/update_compose_labels.py --compose $@ --metadata $<
 
-docker-compose.yml: docker-compose-base.yml docker-compose-meta.yml
-	# Resolving $@ configuration
-	docker-compose $(foreach c,$^,-f $(c)) --log-level=ERROR config > $@
+define _docker_compose_build
+export DOCKER_BUILD_TARGET=$(if $(findstring -devel,$@),development,$(if $(findstring -cache,$@),cache,production)); \
+docker-compose -f docker-compose-build.yml -f docker-compose-meta.yml build $(if $(findstring -nc,$@),--no-cache,)
+endef
 
+#----------------------------------- images
 .PHONY: build build-devel
-build build-devel: docker-compose.yml service.cli/run ## builds images
-	# building image local/${DOCKER_IMAGE_NAME}:${KERNEL_VERSION}
-	@DOCKER_REGISTRY=local; \
-	docker-compose -f $< $(if $(subst build,,$@),-f docker-compose-devel.yml,) build --parallel
-	# built local/${DOCKER_IMAGE_NAME}:${KERNEL_VERSION}
+build build-devel: docker-compose-build.yml docker-compose-meta.yml service.cli/run ## builds images
+	# building image local/${DOCKER_IMAGE_NAME}...
+	$(_docker_compose_build) --parallel
+	# built local/${DOCKER_IMAGE_NAME}
 
 define show-meta
 	$(foreach iid,$(shell docker images */$(1):* -q | sort | uniq),\
@@ -90,6 +91,7 @@ info-build: ## displays info on the built image
 #-----------------------------------
 .PHONY: tests tests-unit tests-integration
 
+#----------------------------------- testing
 tests-unit tests-integration:
 	@.venv/bin/pytest -vv \
 		--basetemp=$(CURDIR)/tmp \
@@ -101,7 +103,7 @@ tests-unit tests-integration:
 
 tests: tests-unit tests-integration ## runs unit and integration tests
 
-#-----------------------------------
+#----------------------------------- versioning
 .PHONY: version-kernel-patch version-kernel-minor version-kernel-major
 version-kernel-patch version-kernel-minor version-kernel-major: versioning/kernel.cfg ## kernel/service versioning as patch
 	@bump2version --verbose  --list --config-file $< $(subst version-kernel-,,$@)
@@ -110,30 +112,43 @@ version-kernel-patch version-kernel-minor version-kernel-major: versioning/kerne
 version-integration-patch version-integration-minor version-integration-major: versioning/integration.cfg ## integration versioning as patch (bug fixes not affecting API/handling), minor/major (backwards-compatible/INcompatible API changes)
 	@bump2version --verbose  --list --config-file $< $(subst version-integration-,,$@)
 
-#----------------------------------------
 
-# NOTE: Do not remove this since using docker-compose would create the folders automatically but as root user, which is inconvenient
-define clean_output_dirs
+
+
+#---------------------------------------- running
+# NOTE: since using docker-compose would create the folders automatically but as root user, which is inconvenient
+define _clean_output_dirs
 	# cleaning output directory
 	rm -rf $(COMPOSE_OUTPUT_DIR)/*
 endef
 $(COMPOSE_OUTPUT_DIR):
+	@$(_clean_output_dirs)
 	mkdir -p $@
+	# created output directory $(COMPOSE_OUTPUT_DIR)
+
+docker-compose-configs = $(wildcard docker-compose*.yml)
+
+.compose-production.yml .compose-development.yml: $(docker-compose-configs)
+	# creating config for stack with 'local/$(DOCKER_IMAGE_NAME):$(patsubst .compose-%.yml,%,$@)' to $@
+	@export DOCKER_REGISTRY=local; \
+	export DOCKER_IMAGE_TAG=$(patsubst .compose-%.yml,%,$@); \
+	docker-compose -f docker-compose-base.yml $(if $(findstring -development,$@), -f docker-compose-devel.yml,) --log-level=ERROR config > $@
 
 .PHONY: down up up-devel
-down: docker-compose.yml ## stops the service
-	@docker-compose -f $< down
 
-up up-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts the service for testing. Devel mode mounts the folders for direct development.
-	@$(call clean_output_dirs)
+up up-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts the service for testing. Devel mode mounts the folders for direct development.
+	$(MAKE) $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml)
 	# starting service...
-	@docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) up
+	@docker-compose -f $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml) up
 
 .PHONY: shell shell-devel
-shell shell-devel: docker-compose.yml docker-compose-devel.yml $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a shell instead of running the container. Useful for development.
-	@$(call clean_output_dirs)
-	docker-compose -f $< $(if $(findstring devel,$@),-f docker-compose-devel.yml,) run {{ cookiecutter.project_slug }} /bin/sh
+shell shell-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a shell instead of running the container. Useful for development.
+	$(MAKE) $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml)
+	# starting service and go in...
+	@docker-compose -f $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml) run {{ cookiecutter.project_slug }} /bin/sh
 
+down: .compose-development.yml ## stops the service
+	@docker-compose -f $< down
 
 #----------------------------------------
 
