@@ -29,7 +29,7 @@ $ source .venv/bin/activate
 Two versions:
 
 - integration version (file VERSION) is updated with ``make version-integration-*``
-- kernel version (file src/{{cookiecutter.project_package_name}}/VERSION) is updated with ``make version-kernel-*``
+- service version (file src/{{cookiecutter.project_package_name}}/VERSION) is updated with ``make version-service-*``
 
 ## CI/CD Integration
 
