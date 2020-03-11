@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: building {{ cookiecutter.project_slug }}
-    runs-on: ${{ matrix.os }}
+    runs-on: {{ "${{ matrix.os }}" }}
     strategy:
       matrix:
         python: [3.8]
@@ -21,12 +21,12 @@ jobs:
         uses: docker-practice/actions-setup-docker@0.0.1
       - name: setup docker-compose
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/${{ matrix.docker-compose }}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo curl -L "https://github.com/docker/compose/releases/download/{{ "${{ matrix.docker-compose }}" }}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
       - name: setup python environment
         uses: actions/setup-python@v1.1.1
         with:
-          python-version: ${{ matrix.python }}
+          python-version: {{ "${{ matrix.python }}" }}
       - name: show versions
         run: |
           python -V
@@ -39,9 +39,9 @@ jobs:
         name: getting cached data
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: {{ "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}" }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            {{ "${{ runner.os }}" }}-pip-
       - name: set dev environs
         run: make devenv
       - name: get current image if available
