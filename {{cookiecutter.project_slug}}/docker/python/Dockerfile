@@ -102,7 +102,7 @@ ENV PATH="/home/${SC_USER_NAME}/service.cli:${PATH}"
 {%- endif %}
 
 # copy binaries from build
-COPY --from=build /build/bin {{ cookiecutter.project_package_name }}
+COPY --from=build --chown=${SC_USER_NAME}:${SC_USER_NAME} /build/bin {{ cookiecutter.project_package_name }}
 
 # ------------------------------------------------------------------------------------
 #TODO:
