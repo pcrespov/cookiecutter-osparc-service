@@ -1,13 +1,12 @@
 name: Github-CI Push/PR
 
+env:
+  DOCKER_COMPOSE_VERSION: "1.25.3"
+  DOCKER_BUILDX: "0.3.1"
+
 on:
   push:
   pull_request:
-
-# env:
-  # DOCKER_BUILDKIT: 1
-  # disable buildkit in compose since there is a failure in docker-compose (see https://github.com/docker/compose/issues/7242#issuecomment-593581723)
-  # COMPOSE_DOCKER_CLI_BUILD: 1
 
 jobs:
   cookie-cutter-osparc:
@@ -21,24 +20,16 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v1
-      - name: setup-docker
-        uses: docker-practice/actions-setup-docker@0.0.1
-      - name: setup docker-compose
+      - name: setup docker
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/${{ matrix.docker-compose }}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
+          ./ci/helpers/setup_docker_compose.bash
+          ./ci/helpers/setup_docker_buildx.bash
       - name: setup python environment
         uses: actions/setup-python@v1.1.1
         with:
           python-version: ${{ matrix.python }}
       - name: show versions
-        run: |
-          python -V
-          python3 -V
-          pip -V
-          pip3 -V
-          docker --version
-          docker-compose --version
+        run: ./ci/helpers/show_system_versions.bash
       - uses: actions/cache@v1
         name: getting cached data
         with:
