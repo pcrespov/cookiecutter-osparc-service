@@ -132,3 +132,6 @@ tmp/
 # make outputs
 docker-compose.yml
 pytest_unittest.xml
+
+#compose outputs
+.compose*
