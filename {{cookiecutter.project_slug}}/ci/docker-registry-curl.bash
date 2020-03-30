@@ -21,9 +21,9 @@ console() {
 }
 
 main() {
-    OUTPUT=$(curl "${@}" --head -vsi 2>&1 | grep -E "^<|^>")
-    REGISTRY_HOST=$(echo "${OUTPUT}" | grep -E "> Host: " | cut -d ":" -f2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    WWW_AUTHENTICATE=$(echo "${OUTPUT}" | grep -E "< www-authenticate: " | cut -d ":" -f2- | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    OUTPUT=$(curl "${@}" --head -vsi 2>&1 | grep --extended-regexp "^<|^>")
+    REGISTRY_HOST=$(echo "${OUTPUT}" | grep --extended-regexp "> Host: " | cut --delimiter=: --fields=2 | sed --expression='s/^[[:space:]]*//' --expression='s/[[:space:]]*$//')
+    WWW_AUTHENTICATE=$(echo "${OUTPUT}" | grep --extended-regexp "< www-authenticate: " | cut --delimiter=: --fields=2- | sed --expression='s/^[[:space:]]*//' --expression='s/[[:space:]]*$//')
 
     console "${OUTPUT}"
     console "${REGISTRY_HOST}"
@@ -31,16 +31,16 @@ main() {
 
     if [ "x${WWW_AUTHENTICATE}" != "x" ];then
         # we need to get a token
-        DOCKER_AUTH_TYPE=$(echo "${WWW_AUTHENTICATE}" | cut -d " " -f 1)
-        DETAILS=$(echo "${WWW_AUTHENTICATE}" | cut -d " " -f 2-)
+        DOCKER_AUTH_TYPE=$(echo "${WWW_AUTHENTICATE}" | cut --delimiter=" " --fields=1)
+        DETAILS=$(echo "${WWW_AUTHENTICATE}" | cut --delimiter=" " --fields=2-)
         console "${DOCKER_AUTH_TYPE}"
         console "${DETAILS}"
         console "${REGISTRY_HOST}"
         if [ "${DOCKER_AUTH_TYPE}" == "Bearer" ];then
-            REALM=$(echo "${DETAILS}" | cut -d ',' -f 1 | cut -d "=" -f 2 | tr -d '"')
-            SERVICE=$(echo "${DETAILS}" | cut -d ',' -f 2 | cut -d "=" -f 2 | tr -d '"')
-            SCOPE=$(echo "${DETAILS}" | cut -d ',' -f 3 | cut -d "=" -f 2 | tr -d '"')
-            if [ "x${DOCKER_AUTH}" != "x" ];then
+            REALM=$(echo "${DETAILS}" | cut --delimiter=',' --fields=1 | cut --delimiter="=" --fields=2 | tr --delete '"')
+            SERVICE=$(echo "${DETAILS}" | cut --delimiter=',' --fields=2 | cut --delimiter="=" --fields=2 | tr --delete '"')
+            SCOPE=$(echo "${DETAILS}" | cut --delimiter=',' --fields=3 | cut --delimiter="=" --fields=2 | tr --delete '"')
+            if [ -v DOCKER_AUTH ];then
                 :
             elif [[ "x${DOCKER_USERNAME}" != "x" && "x${DOCKER_PASSWORD}" != "x" ]];then
                 DOCKER_AUTH="${DOCKER_USERNAME}:${DOCKER_PASSWORD}"
@@ -51,7 +51,7 @@ main() {
             console "${SERVICE}"
             console "${SCOPE}"
             console "${DOCKER_AUTH}"
-            if [ "x" != "x${DOCKER_AUTH}" ];then
+            if [ -v DOCKER_AUTH ];then
                 DOCKER_AUTH_TOKEN=$(curl -m 10 -u "${DOCKER_AUTH}" "${REALM}?service=${SERVICE}&scope=${SCOPE}" -s 2>/dev/null | jq -r .token | xargs echo)
             fi
             console "${DOCKER_AUTH_TOKEN}"

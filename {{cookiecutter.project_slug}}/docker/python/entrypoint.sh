@@ -55,7 +55,7 @@ else
     adduser "$SC_USER_NAME" "$CONT_GROUPNAME"
 
     echo "changing $SC_USER_NAME:$SC_USER_NAME ($SC_USER_ID:$SC_USER_ID) to $SC_USER_NAME:$CONT_GROUPNAME ($HOST_USERID:$HOST_GROUPID)"
-    usermod --uid "$HOST_USERID" --gid $HOST_GROUPID "$SC_USER_NAME"
+    usermod --uid "$HOST_USERID" --gid "$HOST_GROUPID" "$SC_USER_NAME"
     
     echo "Changing group properties of files around from $SC_USER_ID to group $CONT_GROUPNAME"
     find / -path /proc -prune -group "$SC_USER_ID" -exec chgrp --no-dereference "$CONT_GROUPNAME" {} \;
