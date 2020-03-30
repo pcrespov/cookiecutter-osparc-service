@@ -4,5 +4,5 @@ set -euo pipefail
 IFS=$'\n\t'
 
 mkdir --parents ~/.docker/cli-plugins/
-curl --location https://github.com/docker/buildx/releases/download/v${DOCKER_BUILDX}/buildx-v${DOCKER_BUILDX}.linux-amd64 --output ~/.docker/cli-plugins/docker-buildx
+curl --location https://github.com/docker/buildx/releases/download/v"${DOCKER_BUILDX}"/buildx-v"${DOCKER_BUILDX}".linux-amd64 --output ~/.docker/cli-plugins/docker-buildx
 chmod a+x ~/.docker/cli-plugins/docker-buildx
