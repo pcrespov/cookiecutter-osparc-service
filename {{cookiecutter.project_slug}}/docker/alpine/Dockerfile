@@ -14,8 +14,8 @@ ENV SC_USER_NAME scu
 RUN adduser -D -u ${SC_USER_ID} -s /bin/sh -h /home/${SC_USER_NAME} ${SC_USER_NAME}
 
 RUN apk add --no-cache \
-      su-exec \
-      jq
+    su-exec \
+    jq
 
 # -------------------------- Build stage -------------------
 # Installs build/package management tools and third party dependencies
@@ -44,7 +44,7 @@ COPY --chown=${SC_USER_NAME}:${SC_USER_NAME} src/{{ cookiecutter.project_package
 # ------------------------------------------------------------------------------------
 #TODO:
 # uncomment and adapt if build steps are necessary
-# RUN gcc ...
+RUN cp -R src/{{ cookiecutter.project_package_name }}/* /build/bin
 # ------------------------------------------------------------------------------------
 
 # --------------------------Production stage -------------------
