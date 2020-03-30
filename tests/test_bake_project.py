@@ -45,7 +45,7 @@ commands = (
     "make devenv build",
     "make devenv build-devel",
     "make info-build",
-    "make devenv tests",
+    "make devenv build tests",
 )
 
 
