@@ -130,8 +130,5 @@ tmp/
 .vscode
 
 # make outputs
-docker-compose.yml
-pytest_unittest.xml
-
-#compose outputs
+pytest_*.xml
 .compose*
