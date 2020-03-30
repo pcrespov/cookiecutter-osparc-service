@@ -33,36 +33,34 @@ then
 fi
 
 echo "setting correct user id/group id..."
-USERID=$(stat -c %u "${INPUT_FOLDER}")
-GROUPID=$(stat -c %g "${INPUT_FOLDER}")
-GROUPNAME=$(getent group "${GROUPID}" | cut -d: -f1)
-if [ "$USERID" -eq 0 ]
+HOST_USERID=$(stat -c %u "${INPUT_FOLDER}")
+HOST_GROUPID=$(stat -c %g "${INPUT_FOLDER}")
+CONT_GROUPNAME=$(getent group "${HOST_GROUPID}" | cut -d: -f1)
+if [ "$HOST_USERID" -eq 0 ]
 then
     echo "Warning: Folder mounted owned by root user... adding $SC_USER_NAME to root..."
     addgroup "$SC_USER_NAME" root
 else
-    echo "Folder mounted owned by user $USERID:$GROUPID-'$GROUPNAME'..."
+    echo "Folder mounted owned by user $HOST_USERID:$HOST_GROUPID-'$CONT_GROUPNAME'..."
     # take host's credentials in $SC_USER_NAME
-    if [ -z "$GROUPNAME" ]
+    if [ -z "$CONT_GROUPNAME" ]
     then
         echo "Creating new group my$SC_USER_NAME"
-        GROUPNAME=my$SC_USER_NAME
-        addgroup -g "$GROUPID" "$GROUPNAME"
-        # change group property of files already around
-        find / -group "$SC_USER_ID" -exec chgrp -h "$GROUPNAME" {} \;
+        CONT_GROUPNAME=my$SC_USER_NAME
+        addgroup -g "$HOST_GROUPID" "$CONT_GROUPNAME"
     else
-        echo "adding $SC_USER_NAME to group $GROUPNAME..."
-        addgroup "$SC_USER_NAME" "$GROUPNAME"
+        echo "group already exists"
     fi
 
-    echo "changing $SC_USER_NAME $SC_USER_ID:$SC_USER_ID to $USERID:$GROUPID"
+    echo "changing $SC_USER_NAME $SC_USER_ID:$SC_USER_ID to $HOST_USERID:$HOST_GROUPID"
+    # in alpine there is no such thing as usermod... so we delete the user and re-create it as part of $CONT_GROUPNAME
     deluser "$SC_USER_NAME" > /dev/null 2>&1
-    if [ "$SC_USER_NAME" = "$GROUPNAME" ]
-    then
-        addgroup -g "$GROUPID" "$GROUPNAME"
-    fi
-    adduser -u "$USERID" -G "$GROUPNAME" -D -s /bin/sh "$SC_USER_NAME"
+    adduser -u "$HOST_USERID" -G "$CONT_GROUPNAME" -D -s /bin/sh "$SC_USER_NAME"
+
+    echo "Changing group properties of files around from $SC_USER_ID to group $CONT_GROUPNAME"
+    find / -group "$SC_USER_ID" -exec chgrp -h "$CONT_GROUPNAME" {} \;
     # change user property of files already around
+    echo "Changing ownership properties of files around from $SC_USER_ID to group $CONT_GROUPNAME"
     find / -user "$SC_USER_ID" -exec chown -h "$SC_USER_NAME" {} \;
 fi
 

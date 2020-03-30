@@ -33,36 +33,34 @@ then
 fi
 
 echo "setting correct user id/group id..."
-USERID=$(stat --format=%u "${INPUT_FOLDER}")
-GROUPID=$(stat --format=%g "${INPUT_FOLDER}")
-GROUPNAME=$(getent group "${GROUPID}" | cut --delimiter=: --fields=1)
-if [ "$USERID" -eq 0 ]
+HOST_USERID=$(stat --format=%u "${INPUT_FOLDER}")
+HOST_GROUPID=$(stat --format=%g "${INPUT_FOLDER}")
+CONT_GROUPNAME=$(getent group "${HOST_GROUPID}" | cut --delimiter=: --fields=1)
+if [ "$HOST_USERID" -eq 0 ]
 then
     echo "Warning: Folder mounted owned by root user... adding $SC_USER_NAME to root..."
     adduser "$SC_USER_NAME" root
 else
-    echo "Folder mounted owned by user $USERID:$GROUPID-'$GROUPNAME'..."
+    echo "Folder mounted owned by user $HOST_USERID:$HOST_GROUPID-'$CONT_GROUPNAME'..."
     # take host's credentials in $SC_USER_NAME
-    if [ -z "$GROUPNAME" ]
+    if [ -z "$CONT_GROUPNAME" ]
     then
         echo "Creating new group my$SC_USER_NAME"
-        GROUPNAME=my$SC_USER_NAME
-        addgroup --gid "$GROUPID" "$GROUPNAME"
-        # change group property of files already around
-        
+        CONT_GROUPNAME=my$SC_USER_NAME
+        addgroup --gid "$HOST_GROUPID" "$CONT_GROUPNAME"
     else
         echo "group already exists"
     fi
-    echo "adding $SC_USER_NAME to group $GROUPNAME..."
-    adduser "$SC_USER_NAME" "$GROUPNAME"
+    echo "adding $SC_USER_NAME to group $CONT_GROUPNAME..."
+    adduser "$SC_USER_NAME" "$CONT_GROUPNAME"
 
-    echo "changing $SC_USER_NAME:$SC_USER_NAME ($SC_USER_ID:$SC_USER_ID) to $SC_USER_NAME:$GROUPNAME ($USERID:$GROUPID)"
-    usermod --uid "$USERID" --gid $GROUPID "$SC_USER_NAME"
+    echo "changing $SC_USER_NAME:$SC_USER_NAME ($SC_USER_ID:$SC_USER_ID) to $SC_USER_NAME:$CONT_GROUPNAME ($HOST_USERID:$HOST_GROUPID)"
+    usermod --uid "$HOST_USERID" --gid $HOST_GROUPID "$SC_USER_NAME"
     
-    echo "Changing group properties of files around from $SC_USER_ID to group $GROUPNAME"
-    find / -path /proc -prune -group "$SC_USER_ID" -exec chgrp --no-dereference "$GROUPNAME" {} \;
+    echo "Changing group properties of files around from $SC_USER_ID to group $CONT_GROUPNAME"
+    find / -path /proc -prune -group "$SC_USER_ID" -exec chgrp --no-dereference "$CONT_GROUPNAME" {} \;
     # change user property of files already around
-    echo "Changing ownership properties of files around from $SC_USER_ID to group $GROUPNAME"
+    echo "Changing ownership properties of files around from $SC_USER_ID to group $CONT_GROUPNAME"
     find / -path /proc -prune -user "$SC_USER_ID" -exec chown --no-dereference "$SC_USER_NAME" {} \;
 fi
 
