@@ -7,17 +7,28 @@ import pytest
 
 expected_files = (
     ".cookiecutterrc",
+    ".dockerignore",
+    ".gitignore",
+    ".pylintrc",
     "metadata:metadata.yml",
-    "docker/entrypoint.sh",
-    "tools/run_creator.py",
-    "tools/update_compose_labels.py",
+    "docker/{%- if cookiecutter.docker_base.startswith('alpine') -%}alpine{%- elif cookiecutter.docker_base.startswith('python') -%}python{%- endif -%}:entrypoint.sh",
+    "docker/{%- if cookiecutter.docker_base.startswith('alpine') -%}alpine{%- elif cookiecutter.docker_base.startswith('python') -%}python{%- endif -%}:Dockerfile",
+    "service.cli:execute.sh",
+    "tools:run_creator.py",
+    "tools:update_compose_labels.py",
+    "versioning:integration.cfg",
+    "versioning:service.cfg",
     "requirements.in",
     "requirements.txt",
-    "src/Dockerfile",
     "Makefile",
     "VERSION",
-    "README.md"
+    "README.md",
+    "docker-compose-build.yml",
+    "docker-compose-meta.yml",
+    "docker-compose.devel.yml",
+    "docker-compose.yml",
 )
+
 
 @pytest.mark.parametrize("expected_path", expected_files)
 def test_path_in_repo(expected_path: str, project_slug_dir: Path):
@@ -25,7 +36,8 @@ def test_path_in_repo(expected_path: str, project_slug_dir: Path):
     if ":" in expected_path:
         folder, glob = expected_path.split(":")
         folder_path = project_slug_dir / folder
-        assert folder_path.exists()
-        assert any(folder_path.glob(glob))
+        assert folder_path.exists(), f"folder {folder_path} is missing!"
+        assert any(folder_path.glob(glob)), f"no {glob} in {folder_path}"
     else:
-        assert  (project_slug_dir/expected_path).exists()
+        assert (project_slug_dir/expected_path).exists(
+        ), f"{expected_path} is missing from {project_slug_dir}"
