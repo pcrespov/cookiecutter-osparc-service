@@ -1,4 +1,4 @@
-cookiecutter-simcore-computational-service
+cookiecutter-osparc-service
 ==========================================
 
 Cookicutter to generate an oSparc compatible service for the oSparc simcore platform.
