@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: setup docker
         run: |
-          ./ci/helpers/setup_docker_compose.bash
+          sudo ./ci/helpers/setup_docker_compose.bash
           ./ci/helpers/setup_docker_buildx.bash
       - name: setup python environment
         uses: actions/setup-python@v1.1.1
