@@ -1,9 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 set -o errexit
 set -o nounset
-set -o pipefail
 
-IFS=$'\n\t'
+IFS=$(printf '\n\t')
 # This entrypoint script:
 #
 # - Executes *inside* of the container upon start as --user [default root]
