@@ -16,7 +16,6 @@ jobs:
       matrix:
         python: [3.6, 3.7, 3.8]
         os: [ubuntu-18.04]
-        docker-compose: [1.25.0]
       fail-fast: false
     steps:
       - uses: actions/checkout@v1
