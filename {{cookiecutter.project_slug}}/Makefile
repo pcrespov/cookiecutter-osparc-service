@@ -164,7 +164,7 @@ up up-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts the servi
 shell shell-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a shell instead of running the container. Useful for development.
 	$(MAKE) $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml)
 	# starting service and go in...
-	@docker-compose -f $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml) run {{ cookiecutter.project_slug }} /bin/sh
+	@docker-compose -f $(if $(findstring devel,$@),.compose-development.yml,.compose-production.yml) run --service-ports {{ cookiecutter.project_slug }} /bin/sh
 
 down: .compose-development.yml ## stops the service
 	@docker-compose -f $< down
