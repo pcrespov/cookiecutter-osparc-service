@@ -42,8 +42,8 @@ commands = (
     "ls -la .",
     "make help",
     "make devenv",
-    "make devenv build",
-    "make devenv build-devel",
+    "make devenv build up",
+    "make devenv build-devel up-devel",
     "make info-build",
     "make devenv build tests",
 )
