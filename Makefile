@@ -88,7 +88,7 @@ help: ## this colorful help
 	@awk --posix 'BEGIN {FS = ":.*?## "} /^[[:alpha:][:space:]_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
-git_clean_args = -dxf -e .vscode/ -e TODO.md -e .venv
+git_clean_args = -dxf --exclude=.vscode/ --exclude=.venv/
 
 .PHONY: clean clean-force
 clean: ## cleans all unversioned files in project and temp files create by this makefile
@@ -97,6 +97,7 @@ clean: ## cleans all unversioned files in project and temp files create by this 
 	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]
 	@echo -n "$(shell whoami), are you REALLY sure? [y/N] " && read ans && [ $${ans:-N} = y ]
 	@git clean $(git_clean_args)
+	-rm -rf $(OUTPUT_DIR)
 
 clean-force: clean
 	# removing .venv
