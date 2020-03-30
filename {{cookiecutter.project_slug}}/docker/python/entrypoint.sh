@@ -49,21 +49,21 @@ else
         GROUPNAME=my$SC_USER_NAME
         addgroup --gid "$GROUPID" "$GROUPNAME"
         # change group property of files already around
-        find / -path /proc -prune -group "$SC_USER_ID" -exec chgrp --no-dereference "$GROUPNAME" {} \;
+        
     else
-        echo "adding $SC_USER_NAME to group $GROUPNAME..."
-        adduser "$SC_USER_NAME" "$GROUPNAME"
+        echo "group already exists"
     fi
+    echo "adding $SC_USER_NAME to group $GROUPNAME..."
+    adduser "$SC_USER_NAME" "$GROUPNAME"
 
-    echo "changing $SC_USER_NAME $SC_USER_ID:$SC_USER_ID to $USERID:$GROUPID"
-    deluser "$SC_USER_NAME" > /dev/null 2>&1
-    if [ "$SC_USER_NAME" = "$GROUPNAME" ]
-    then
-        addgroup --gid "$GROUPID" "$GROUPNAME"
-    fi
-    adduser --disabled-password --gecos "" --uid "$USERID" --gid "$GROUPID" --shell /bin/bash "$SC_USER_NAME" --no-create-home
+    echo "changing $SC_USER_NAME:$SC_USER_NAME ($SC_USER_ID:$SC_USER_ID) to $SC_USER_NAME:$GROUPNAME ($USERID:$GROUPID)"
+    usermod --uid "$USERID" --gid $GROUPID "$SC_USER_NAME"
+    
+    echo "Changing group properties of files around from $SC_USER_ID to group $GROUPNAME"
+    find / -path /proc -prune -group "$SC_USER_ID" -exec chgrp --no-dereference "$GROUPNAME" {} \;
     # change user property of files already around
-    find / -user "$SC_USER_ID" -exec chown --no-dereference "$SC_USER_NAME" {} \;
+    echo "Changing ownership properties of files around from $SC_USER_ID to group $GROUPNAME"
+    find / -path /proc -prune -user "$SC_USER_ID" -exec chown --no-dereference "$SC_USER_NAME" {} \;
 fi
 
 echo "Starting $* ..."
@@ -72,4 +72,4 @@ echo "  local dir : $(ls -al)"
 echo "  input dir : $(ls -al "${INPUT_FOLDER}")"
 echo "  output dir : $(ls -al "${OUTPUT_FOLDER}")"
 
-su --preserve-environment --command "export PATH=${PATH}:/home/$SC_USER_NAME/service.cli; $*" "$SC_USER_NAME"
+su --command "export PATH=${PATH}:/home/$SC_USER_NAME/service.cli; $*" "$SC_USER_NAME"
