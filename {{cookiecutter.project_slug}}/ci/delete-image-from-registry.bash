@@ -1,5 +1,9 @@
 #!/bin/bash
-set -e
+set -o errexit
+set -o nounset
+set -o pipefail
+IFS=$'\n\t'
+
 cd "$(dirname "$0")"
 
 echo "deleting ${DOCKER_REGISTRY}/${DOCKER_PROJECT}"
