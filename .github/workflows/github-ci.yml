@@ -19,10 +19,12 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v1
-      - name: setup docker
+      - name: setup environ
         run: |
           echo ::set-env name=DOCKER_COMPOSE_VERSION::${DOCKER_COMPOSE_VERSION}
           echo ::set-env name=DOCKER_BUILDX::${DOCKER_BUILDX}
+      - name: setup docker
+        run: |
           sudo ./ci/helpers/setup_docker_compose.bash
           ./ci/helpers/setup_docker_buildx.bash
       - name: setup python environment
