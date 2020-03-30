@@ -15,6 +15,8 @@ ifeq (,$(wildcard .git))
 # NOTE: will prevent failure of recipes when not in git repo
 $(info WARNING: not running in a git repository!!!)
 export git=echo
+else
+git=git
 endif
 export VCS_URL:=$(shell $(git) config --get remote.origin.url)
 export VCS_REF:=$(shell $(git) rev-parse --short HEAD)
