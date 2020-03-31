@@ -1,12 +1,9 @@
-version: '3.7'
+version: "3.7"
 services:
   {{ cookiecutter.project_slug }}:
     # bypass normal start by going directly as root in starting folder
-    entrypoint: sh
-    command: []
-    security_opt:
-      # in case gdb is needed
-      - seccomp:unconfined
+    image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:development
     volumes:
-      # mount the sources by default
       - ./src:/home/scu/src
+      - ./docker/{{ cookiecutter.docker_base.split(":")[0] }}:/home/scu/docker
+      - ./service.cli:/home/scu/service.cli

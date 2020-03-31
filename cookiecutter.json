@@ -5,16 +5,27 @@
     "contact_email": "{{ cookiecutter.author_email }}",
     "project_name": "Name of the project",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
-    "project_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "project_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
     "project_short_description": "{{ cookiecutter.project_name }}",
     "project_type": [
         "computational"
     ],
-    "number_of_inputs":2,
-    "number_of_outputs":1,
-    "project_git_repo": "https://github.com/yourrepo",
+    "docker_base": [
+        "alpine:3.7",
+        "alpine:3.8",
+        "python:3.6",
+        "python:3.7",
+        "python:3.8",
+        "python:3.6-slim",
+        "python:3.7-slim",
+        "python:3.8-slim",
+        "ubuntu:18.04"
+    ],
+    "number_of_inputs": 2,
+    "number_of_outputs": 1,
+    "project_git_repo": "https://github.com/ITISFoundation/{{ cookiecutter.project_slug }}",
     "git_username": "Yourusername",
-    "default_docker_registry": "https://index.docker.io/v1",
+    "default_docker_registry": "itisfoundation",
     "release_date": "{% now 'utc', '%Y' %}",
     "version": "0.1.0",
     "_extensions": [

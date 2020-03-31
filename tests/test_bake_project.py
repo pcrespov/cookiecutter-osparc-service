@@ -1,25 +1,20 @@
 #pylint: disable=W0621
 
+import json
 import logging
 import os
 import subprocess
-from contextlib import contextmanager
+import sys
+from pathlib import Path
+from typing import Dict
 
+import pytest
+
+# current directory
+current_dir = Path(sys.argv[0] if __name__ ==
+                   "__main__" else __file__).resolve().parent
 
 logger = logging.getLogger(__name__)
-
-@contextmanager
-def inside_dir(dirpath):
-    """
-    Execute code from inside the given directory
-    :param dirpath: String, path of the directory the command is being run.
-    """
-    old_path = os.getcwd()
-    try:
-        os.chdir(dirpath)
-        yield
-    finally:
-        os.chdir(old_path)
 
 
 def test_project_tree(cookies):
@@ -28,18 +23,34 @@ def test_project_tree(cookies):
     assert result.exception is None
     assert result.project.basename == 'test_project'
 
-def test_run_tests(cookies):
-    result = cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry':'test.test.com'})
-    working_dir = str(result.project)
-    commands = (
-        "ls -la .",        
-        "make build",
-        "pip install -r tests/requirements.txt",
-        "make unit-test",
-        "make integration-test"
-    )
-    with inside_dir(working_dir):
-        for cmd in commands:
-            logger.info("Running '%s' ...", cmd)
-            assert subprocess.check_call(cmd.split()) == 0
-            logger.info("Done '%s' .", cmd)
+
+def _get_cookiecutter_config() -> Dict:
+    cookiecutter_config_file = current_dir / "../cookiecutter.json"
+    with cookiecutter_config_file.open() as fp:
+        return json.load(fp)
+
+
+flavors = _get_cookiecutter_config()["docker_base"]
+
+
+@pytest.fixture(params=flavors)
+def baked_project(cookies, request):
+    return cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry': 'test.test.com', 'docker_base': request.param})
+
+
+commands = (
+    "ls -la .",
+    "make help",
+    "make devenv",
+    "make devenv build up",
+    "make devenv build-devel up-devel",
+    "make info-build",
+    "make devenv build tests",
+)
+
+
+@pytest.mark.parametrize("command", commands)
+def test_run_tests(baked_project, command: str):
+    working_dir = Path(baked_project.project)
+    assert subprocess.run(command.split(), cwd=working_dir,
+                          check=True).returncode == 0

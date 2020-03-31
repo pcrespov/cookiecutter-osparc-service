@@ -1,3 +1,0 @@
-{
-    "contact": "{{ cookiecutter.contact_email }}"
-}

@@ -1,0 +1,8 @@
+version: "3.7"
+services:
+  {{ cookiecutter.project_slug }}:
+    image: local/${DOCKER_IMAGE_NAME}:${DOCKER_BUILD_TARGET}
+    build:
+      context: ./
+      dockerfile: docker/{{ cookiecutter.docker_base.split(":")[0] }}/Dockerfile
+      target: production

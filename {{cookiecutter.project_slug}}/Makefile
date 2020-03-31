@@ -1,206 +1,211 @@
+#
+# CONVENTIONS:
+#
+# - targets shall be ordered such that help list rensembles a typical workflow, e.g. 'make devenv tests'
+# - add doc to relevant targets
+# - internal targets shall start with '.'
+# - KISS
+#
 # author: {{ cookiecutter.author_name }}
 
-OS_VERSION := $(shell uname -a)
-ifneq (,$(findstring Microsoft,$(OS_VERSION)))
-$(info    detected WSL)
-export DOCKER_COMPOSE=docker-compose
-export DOCKER=docker
-else ifeq ($(OS), Windows_NT)
-$(info    detected Powershell/CMD)
-export DOCKER_COMPOSE=docker-compose.exe
-export DOCKER=docker.exe
-else ifneq (,$(findstring Darwin,$(OS_VERSION)))
-$(info    detected OSX)
-export DOCKER_COMPOSE=docker-compose
-export DOCKER=docker
-else
-$(info    detected native linux)
-export DOCKER_COMPOSE=docker-compose
-export DOCKER=docker
-endif
+SHELL = /bin/sh
+.DEFAULT_GOAL := help
 
-export VCS_URL:=$(shell git config --get remote.origin.url)
-export VCS_REF:=$(shell git rev-parse --short HEAD)
-export VCS_STATUS_CLIENT:=$(if $(shell git status -s),'modified/untracked','clean')
+export VCS_URL:=$(shell git config --get remote.origin.url || echo unversioned)
+export VCS_REF:=$(shell git rev-parse --short HEAD || echo unversioned)
+export VCS_STATUS:=$(if $(shell git status -s || echo unversioned),'modified/untracked','clean')
 export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-ifndef DOCKER_REGISTRY
-export DOCKER_REGISTRY={{ cookiecutter.default_docker_registry }}
-endif
+export DOCKER_REGISTRY ?= {{ cookiecutter.default_docker_registry }}
+export DOCKER_IMAGE_NAME ?= {{ cookiecutter.project_name.lower().replace(' ', '-') }}
+export DOCKER_IMAGE_TAG ?= $(shell cat VERSION)
 
+export COMPOSE_INPUT_DIR := ./validation/input
+export COMPOSE_OUTPUT_DIR := .tmp/output
 
+APP_NAME := {{ cookiecutter.project_slug }}
 
-## Tools ------------------------------------------------------------------------------------------------------
-#
-tools =
-
-ifeq ($(shell uname -s),Darwin)
-	SED = gsed
-else
-	SED = sed
-endif
-
-ifeq ($(shell which ${SED}),)
-	tools += $(SED)
-endif
-
-
-## ------------------------------------------------------------------------------------------------------
-.PHONY: all
-all: help info
-ifdef tools
-	$(error "Can't find tools:${tools}")
-endif
-
-
-.PHONY: build build-devel
-# target: build, build-devel: – Builds all service images. Builds them in devel mode.
-build: update_compose_labels update_run_script
-	${DOCKER_COMPOSE} -f docker-compose.yml build --parallel
-
-build-devel: update_compose_labels update_run_script
-	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yml build --parallel
-
-
-.PHONY: up down
-# target: up, down: – Starts/Stops services.
-up: down .tmp-folder .env
-	${DOCKER_COMPOSE} -f docker-compose.yml up
-
-down:
-	@${DOCKER_COMPOSE} -f docker-compose.yml down
-
-## -------------------------------
-# Development/Debugging.
-.PHONY: up-devel
-# target: up-devel: – Starts service as root and with sources mounted in /home/scu/src for debugging.
-up-devel: down .tmp-folder .env
-	${DOCKER_COMPOSE} -f docker-compose.yml -f docker-compose.devel.yml run {{ cookiecutter.project_slug }}
-
-## -------------------------------
-# Testing.
-
-.PHONY: unit-test integration-test
-# target: unit-test – Runs unit tests [w/ fail fast]
-unit-test:
-	"pytest" -x -v --junitxml=pytest_unittest.xml --log-level=warning tests/unit
-
-# target: integration-test – Runs integration tests [w/ fail fast] (needs built container)
-integration-test:
-	"pytest" -x -v --junitxml=pytest_integrationtest.xml --log-level=warning tests/integration
-
-.PHONY: push-release push
-# target: push-release, push: – Pushes services to the registry if service not available in registry. push overwrites.
-push-release: check-release check-pull push
-
-check-pull:
-	# check if the service is already online
-	@${DOCKER} login ${DOCKER_REGISTRY};\
-	SERVICE_VERSION=$$(cat VERSION);\
-	${DOCKER} pull \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION; \
-	if [ $$? -eq 0 ] ; then \
-		echo "image already in registry ${DOCKER_REGISTRY}";\
-		false;\
-	else \
-		echo "no image available"; \
-	fi;
-
-check-release:
-	# check if this is a releasable version number. Major shall be > 0
-	@MAJOR_VERSION=$$(cut -f 1 -d '.' VERSION);\
-	echo $$MAJOR_VERSION;\
-	if [ $$MAJOR_VERSION -eq 0 ] ; then \
-		echo "Service major is below 1!!"; \
-		false; \
-	else\
-		echo "Service is releasable";\
-	fi
-
-
-push:
-	# push both latest and :$$SERVICE_VERSION tags
-	${DOCKER} login ${DOCKER_REGISTRY};\
-	SERVICE_VERSION=$$(cat VERSION);\
-	${DOCKER} tag \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;\
-	${DOCKER} push \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:$$SERVICE_VERSION;\
-	${DOCKER} push \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest;
-
-pull:
-	# pull latest service version if available
-	${DOCKER} pull \
-		${DOCKER_REGISTRY}/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}:latest || true;
-
-# basic checks -------------------------------------
-.env: .env-devel
-	# first check if file exists, copies it
-	@if [ ! -f $@ ]	; then \
-		echo "##### $@ does not exist, copying $< ############"; \
-		cp $< $@; \
-	else \
-		echo "#####  $< is newer than $@ ####"; \
-		diff -uN $@ $<; \
-		false; \
-	fi
-
-.PHONY: .tmp-folder
-.tmp-folder:
-	@rm -rf tmp
-	@mkdir -p tmp/output
-	@mkdir -p tmp/log
-
-.PHONY: update_compose_labels update_run_script
-update_compose_labels:
-	pip install -r tools/requirements.txt
-	python3 tools/update_compose_labels.py --compose docker-compose.yml --input docker/labels
-
-update_run_script:
-	python3 tools/run_creator.py --folder docker/labels --runscript service.cli/do_run
-
-.PHONY: regenerate_cookiecutter
-regenerate_cookiecutter:
-	pip install cookiecutter
-	cookiecutter  --no-input --overwrite-if-exists --config-file=.cookiecutterrc gh:ITISFoundation/cookiecutter-osparc-service --output-dir ../
-
-.PHONY: info
-# target: info – Displays some parameters of makefile environments
-info:
-	@echo '+ VCS_* '
-	@echo '  - ULR                : ${VCS_URL}'
-	@echo '  - REF                : ${VCS_REF}'
-	@echo '  - (STATUS)REF_CLIENT : (${VCS_STATUS_CLIENT})'
-	@echo '+ BUILD_DATE           : ${BUILD_DATE}'
-	@echo '+ OS_VERSION           : ${OS_VERSION}'
-	@echo '+ DOCKER_REGISTRY      : ${DOCKER_REGISTRY}'
-
-
-## -------------------------------
-# Virtual Environments
+# ENVIRON ----------------------------------
+.PHONY: devenv
 .venv:
-# target: .venv – Creates a python virtual environment with dev tools (pip, pylint, ...)
-	python3 -m venv .venv
-	.venv/bin/pip3 install --upgrade pip wheel setuptools
-	.venv/bin/pip3 install pylint autopep8 virtualenv
-	@echo "To activate the venv, execute 'source .venv/bin/activate' or '.venv/bin/activate.bat' (WIN)"
+	python3 -m venv $@
+	# upgrading package managers
+	$@/bin/pip3 install --upgrade \
+		pip \
+		wheel \
+		setuptools
+	# tooling
+	$@/bin/pip3 install pip-tools
 
-## -------------------------------
-# Auxiliary targets.
+requirements.txt: .venv requirements.in
+	# freezes requirements
+	$</bin/pip-compile --upgrade --build-isolation --output-file $@ $(word2, $^)
 
-.PHONY: clean
-# target: clean – Cleans all unversioned files in project
-clean:
-	@git clean -dxf -e .vscode/
+devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
+	# installing extra tools
+	@$</bin/pip3 install -r  $(word 2,$^)
+	# your dev environment contains
+	@$</bin/pip3 list
+	@echo "To activate the virtual environment, run 'source $</bin/activate'"
+
+
+
+# INTEGRATION -----------------------------------
+metatada = metadata/metadata.yml
+service.cli/run: $(metatada)
+	# Updates adapter script from metadata in $<
+	@.venv/bin/python3 tools/run_creator.py --metadata $< --runscript $@
+
+docker-compose-meta.yml: $(metatada)
+	# Injects metadata from $< as labels
+	@.venv/bin/python3 tools/update_compose_labels.py --compose $@ --metadata $<
+
+define _docker_compose_build
+export DOCKER_BUILD_TARGET=$(if $(findstring -devel,$@),development,$(if $(findstring -cache,$@),cache,production)); \
+$(if $(findstring -x,$@),\
+	docker buildx > /dev/null; export DOCKER_CLI_EXPERIMENTAL=enabled; docker buildx bake  --file docker-compose-build.yml --file docker-compose-meta.yml $(if $(findstring -nc,$@),--no-cache,);,\
+	$(if $(findstring -kit,$@),export DOCKER_BUILDKIT=1;export COMPOSE_DOCKER_CLI_BUILD=1;,) \
+	docker-compose --file docker-compose-build.yml --file docker-compose-meta.yml build $(if $(findstring -nc,$@),--no-cache,) --parallel;\
+)
+endef
+
+
+
+# DOCKER ----------------------------------- 
+.PHONY: build build-devel build-kit-devel build-x build-devel-x
+build build-devel build-kit build-kit-devel build-x build-devel-x: docker-compose-build.yml docker-compose-meta.yml service.cli/run ## builds images, -devel in development mode, -kit using docker buildkit, -x using docker buildX (if installed)
+	# building image local/${DOCKER_IMAGE_NAME}...
+	@$(call _docker_compose_build)
+
+define show-meta
+	$(foreach iid,$(shell docker images */$(1):* -q | sort | uniq),\
+		docker image inspect $(iid) | jq '.[0] | .RepoTags, .ContainerConfig.Labels, .Config.Labels';)
+endef
+
+info-build: ## displays info on the built image
+	# Built images
+	@docker images */$(DOCKER_IMAGE_NAME):*
+	# Tags and labels
+	@$(call show-meta,$(DOCKER_IMAGE_NAME))
+
+
+
+# TESTS----------------------------------- 
+.PHONY: tests tests-unit tests-integration
+tests-unit tests-integration: ## runs integration and unit tests
+	@.venv/bin/pytest -vv \
+		--basetemp=$(CURDIR)/tmp \
+		--exitfirst \
+		--failed-first \
+		--pdb \
+		--junitxml=pytest_$(subst tests-,,$@)test.xml \
+		$(CURDIR)/tests/$(subst tests-,,$@)
+
+tests: tests-unit tests-integration ## runs unit and integration tests
+
+
+# PUBLISHING ----------------------------------- 
+define _bumpversion
+	# upgrades as $(subst $(1),,$@) version, commits and tags
+	@bump2version --verbose --list --config-file $(1) $(subst $(2),,$@)
+endef
+
+.PHONY: version-service-patch version-service-minor version-service-major
+version-service-patch version-service-minor version-service-major: versioning/service.cfg ## kernel/service versioning as patch
+	@$(call _bumpversion,$<,version-service-)
+
+.PHONY: push push-force push-version push-latest pull-latest pull-version tag-latest tag-version
+tag-latest tag-version:
+	docker tag local/$(DOCKER_IMAGE_NAME):production $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring version,$@),$(DOCKER_IMAGE_TAG),latest)
+
+version_valid = $(shell test $$(echo $(DOCKER_IMAGE_TAG) | cut --fields=1 --delimiter=.) -gt 0 > /dev/null && echo "image version is valid")
+version_exists = $(shell DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) > /dev/null && echo "image already exists on $(DOCKER_REGISTRY)")
+push push-force: ## pushes (resp. force) services to the registry if service not available in registry.
+	@$(if $(findstring force,$@),,\
+		$(if $(call version_valid),$(info version is valid), $(error $(DOCKER_IMAGE_TAG) is not a valid version (major>=1)))\
+		$(if $(call version_exists),$(error $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) already exists on $(DOCKER_REGISTRY)), $(info no version found on $(DOCKER_REGISTRY)))\
+	)
+	@$(MAKE) push-version;
+	@$(MAKE) push-latest;
+
+push-latest push-version: ## publish service to registry with latest/version tag
+	# pushing '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring version,$@),$(DOCKER_IMAGE_TAG),latest)'...
+	@$(MAKE) tag-$(subst push-,,$@)
+	@docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring version,$@),$(DOCKER_IMAGE_TAG),latest)
+	# pushed '$(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring version,$@),$(DOCKER_IMAGE_TAG),latest)'
+
+pull-latest pull-version: ## pull service from registry
+	@docker pull $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring version,$@),$(DOCKER_IMAGE_TAG),latest)
+
+
+.PHONY: version-integration-patch version-integration-minor version-integration-major
+version-integration-patch version-integration-minor version-integration-major: versioning/integration.cfg ## integration versioning as patch (bug fixes not affecting API/handling), minor/major (backwards-compatible/INcompatible API changes)
+	@$(call _bumpversion,$<,version-integration-)
+
+
+# DEVELOPMENT ---------------------------------------- 
+# NOTE: since using docker-compose would create the folders automatically but as root user, which is inconvenient
+define _clean_output_dirs
+	# cleaning output directory
+	rm -rf $(COMPOSE_OUTPUT_DIR)/*
+endef
+$(COMPOSE_OUTPUT_DIR):
+	@$(call _clean_output_dirs)
+	mkdir -p $@
+	# created output directory $(COMPOSE_OUTPUT_DIR)
+
+docker-compose-configs = $(wildcard docker-compose.*yml)
+
+.compose-production.yml .compose-development.yml: $(docker-compose-configs)
+	# creating config for stack with 'local/$(DOCKER_IMAGE_NAME):$(patsubst .compose-%.yml,%,$@)' to $@
+	@export DOCKER_REGISTRY=local; \
+	export DOCKER_IMAGE_TAG=$(patsubst .compose-%.yml,%,$@); \
+	docker-compose -f docker-compose.yml $(if $(findstring -development,$@), -f docker-compose.devel.yml,) --log-level=ERROR config > $@
+
+define _docker_compose_cli
+	$(eval docker_compose_path=.compose-$(if $(findstring devel,$@),development,production).yml)
+	$(MAKE) $(docker_compose_path)
+	@docker-compose -f $(docker_compose_path) $(1)
+endef
+
+
+.PHONY: down up up-devel shell shell-devel
+up up-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts the service for testing. Devel mode mounts the folders for direct development.
+	# starting a service
+	$(call _docker_compose_cli,up)
+
+shell shell-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a shell instead of running the container. Useful for development.
+	# starting service and go in...
+	$(call _docker_compose_cli,run --service-ports $(APP_NAME) /bin/sh)
+
+down: .compose-development.yml ## stops the service
+	@docker-compose -f $< down
+
+
+
+# MISCELANEOUS -----------------------------------
+.PHONY: replay
+replay: .cookiecutterrc ## re-applies cookiecutter
+	# Replaying {{ cookiecutter._template }} ...
+	@cookiecutter --no-input --overwrite-if-exists \
+		--config-file=$< \
+		--output-dir="$(abspath $(CURDIR)/..)" \
+		"{{ cookiecutter._template }}"
 
 
 .PHONY: help
-# target: help – Display all callable targets
-help:
-	@echo "Make targets in osparc-simcore:"
-	@echo
-	@egrep "^\s*#\s*target\s*:\s*" [Mm]akefile \
-	| $(SED) -r "s/^\s*#\s*target\s*:\s*//g"
-	@echo
+help: ## this colorful help
+	@echo "Recipes for '$(notdir $(CURDIR))':"
+	@echo ""
+	@awk --posix 'BEGIN {FS = ":.*?## "} /^[[:alpha:][:space:]_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+
+
+.PHONY: clean clean-force
+git_clean_args = -dxf -e .vscode/ -e .venv
+clean: ## cleans all unversioned files in project and temp files create by this makefile
+	# Cleaning unversioned
+	@git clean -n $(git_clean_args)
+	@echo -n "Are you sure? [y/N] " && read ans && [ $${ans:-N} = y ]
+	@echo -n "$(shell whoami), are you REALLY sure? [y/N] " && read ans && [ $${ans:-N} = y ]
+	@git clean $(git_clean_args)

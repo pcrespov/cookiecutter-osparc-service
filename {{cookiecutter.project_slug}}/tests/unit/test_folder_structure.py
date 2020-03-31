@@ -1,5 +1,3 @@
-# pylint:disable=wildcard-import
-# pylint:disable=unused-import
 # pylint:disable=unused-variable
 # pylint:disable=unused-argument
 # pylint:disable=redefined-outer-name
@@ -8,28 +6,39 @@ from pathlib import Path
 
 import pytest
 
-def test_docker_dir(docker_dir: Path):
-    labels_dir = docker_dir / "labels" 
-    assert labels_dir.exists()
+expected_files = (
+    ".cookiecutterrc",
+    ".dockerignore",
+    ".gitignore",
+    ".pylintrc",
+    "metadata:metadata.yml",
+    "docker/{{ cookiecutter.docker_base.split(":")[0] }}:entrypoint.sh",
+    "docker/{{ cookiecutter.docker_base.split(":")[0] }}:Dockerfile",
+    "service.cli:execute.sh",
+    "tools:run_creator.py",
+    "tools:update_compose_labels.py",
+    "versioning:integration.cfg",
+    "versioning:service.cfg",
+    "requirements.in",
+    "requirements.txt",
+    "Makefile",
+    "VERSION",
+    "README.md",
+    "docker-compose-build.yml",
+    "docker-compose-meta.yml",
+    "docker-compose.devel.yml",
+    "docker-compose.yml",
+)
 
-    labels = list(labels_dir.glob("*.json"))
-    assert len(labels) > 0
 
-    assert Path(docker_dir / "entrypoint.sh").exists()
-    assert Path(docker_dir / "boot.sh").exists()
+@pytest.mark.parametrize("expected_path", expected_files)
+def test_path_in_repo(expected_path: str, project_slug_dir: Path):
 
-def test_tools_dir(tools_dir: Path):
-    assert Path(tools_dir / "requirements.txt").exists()
-    assert Path(tools_dir / "update_compose_labels.py").exists()
-    assert Path(tools_dir / "run_creator.py").exists()
-
-def test_package_dir(src_dir: Path):
-    assert Path(src_dir / "Dockerfile").exists()
-
-def test_slug_dir(project_slug_dir: Path):
-    assert Path(project_slug_dir / ".bumpversion.cfg").exists()
-    assert Path(project_slug_dir / ".env-devel").exists()
-    assert Path(project_slug_dir / "docker-compose.yml").exists()
-    assert Path(project_slug_dir / "Makefile").exists()
-    assert Path(project_slug_dir / "README.md").exists()
-    assert Path(project_slug_dir / "VERSION").exists()
+    if ":" in expected_path:
+        folder, glob = expected_path.split(":")
+        folder_path = project_slug_dir / folder
+        assert folder_path.exists(), f"folder {folder_path} is missing!"
+        assert any(folder_path.glob(glob)), f"no {glob} in {folder_path}"
+    else:
+        assert (project_slug_dir/expected_path).exists(
+        ), f"{expected_path} is missing from {project_slug_dir}"

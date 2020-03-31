@@ -1,0 +1,32 @@
+name: {{ cookiecutter.project_name }}
+key: simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
+type: {{ cookiecutter.project_type }}
+integration-version: 1.0.0
+version: {{ cookiecutter.version }}
+description: {{ cookiecutter.project_short_description }}
+contact: {{ cookiecutter.contact_email }}
+authors:
+  - name: {{ cookiecutter.author_name }}
+    email: {{ cookiecutter.author_email }}
+    affiliation: {{ cookiecutter.author_affiliation }}
+inputs:
+  {% for i in range(cookiecutter.number_of_inputs|int) -%}
+  input_{{ i+1 }}:
+    displayOrder: {{ i+1 }}
+    label: input_{{ i+1 }}_label
+    description: The input {{ i+1 }} description
+    type: string
+    defaultValue: some_value(optional)
+    fileToKeyMap:
+      somefilename.ext: input_{{ i+1 }}
+  {% endfor %}
+outputs:
+  {% for i in range(cookiecutter.number_of_outputs|int) -%}
+  output_{{ i+1 }}:
+    displayOrder: {{ i+1 }}
+    label: output_{{ i+1 }}_label
+    description: The input {{ i+1 }} description
+    type: string
+    fileToKeyMap:
+      somefilename.ext: output_{{ i+1 }}
+  {% endfor %}

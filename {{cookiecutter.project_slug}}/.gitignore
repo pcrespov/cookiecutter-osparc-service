@@ -117,11 +117,10 @@ venv.bak/
 build/
 output/
 out/
-.output/
 
 # temporary folders
 tmp/
-.tmp/
+
 
 # explicit mark
 *ignore*
@@ -130,4 +129,13 @@ tmp/
 # vscode configuration
 .vscode
 
-TODO.md
+# make outputs
+pytest_*.xml
+.compose*
+
+# validation folder
+!validation/**/*
+# docker ignore
+!.dockerignore
+# git ignore
+!.gitignore
