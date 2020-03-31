@@ -36,6 +36,11 @@ jobs:
           key: {{ "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}" }}
           restore-keys: |
             {{ "${{ runner.os }}" }}-pip-
+      - name: set owner variable
+        run: echo ::set-env name=OWNER::${GITHUB_REPOSITORY%/*}
+      - name: set docker image tag
+        if: github.ref != 'refs/heads/master'
+        run: echo ::set-env name=DOCKER_IMAGE_TAG::${GITHUB_REF##*/}
       - name: set dev environs
         run: make devenv
       - name: get current image if available
@@ -48,7 +53,11 @@ jobs:
         run: make tests
       - if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         name: deploy
-        run: make push
+        run: |
+          ./ci/helpers/dockerhub_login.bash
+          make push
       - if: github.event_name == 'push' && github.ref != 'refs/heads/master'
         name: deploy
-        run: make push-force
+        run: |
+          ./ci/helpers/dockerhub_login.bash
+          make push-version
