@@ -15,9 +15,12 @@ before_script:
 # ------- {{ cookiecutter.project_slug }}
 # --------------------------------------------------------------------------------------------
 {{ cookiecutter.project_slug }}-build:
+  tags:
+    - ubuntu_DOCKER
   stage: build
   except:
-    - staging
+    refs:
+      - staging
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
@@ -27,6 +30,9 @@ before_script:
     - make build
     - make push-force
   only:
+    refs:
+      - branches
+      - merge_requests
     changes:
       - "**/{{ cookiecutter.project_slug }}/**/*"
   environment:
@@ -34,7 +40,13 @@ before_script:
     on_stop: remove_{{ cookiecutter.project_slug }}_builds
 
 remove_{{ cookiecutter.project_slug }}_builds:
+  tags:
+    - ubuntu_DOCKER
   stage: build
+  only:
+    refs:
+      - branches
+      - merge_requests
   script:
     - export DOCKER_REGISTRY=$SC_CI_TESTING_REGISTRY
     - export DOCKER_PROJECT=$SC_CI_PROJECT_PATH_NAME/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
@@ -47,14 +59,20 @@ remove_{{ cookiecutter.project_slug }}_builds:
     action: stop
 
 {{ cookiecutter.project_slug }}-unit-test:
+  tags:
+    - ubuntu_DOCKER
   stage: test
   except:
-    - staging
+    refs:
+      - staging
   script:
     - pip install -r $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/tests/requirements.txt
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - make tests-unit
   only:
+    refs:
+      - branches
+      - merge_requests
     changes:
       - "**/{{ cookiecutter.project_slug }}/**/*"
   artifacts:
@@ -65,17 +83,23 @@ remove_{{ cookiecutter.project_slug }}_builds:
       - $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/pytest_unittest.xml
 
 {{ cookiecutter.project_slug }}-integration-test:
+  tags:
+    - ubuntu_DOCKER
   stage: test
   except:
-    - staging
+    refs:
+      - staging
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
     - pip install -r $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/tests/requirements.txt
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - export DOCKER_REGISTRY=$SC_CI_TEST_IMAGE_PREFIX
     - make pull-latest
-    - make tests-integration
+    - make tests-integration  
   only:
+    refs:
+      - branches
+      - merge_requests
     changes:
       - "**/{{ cookiecutter.project_slug }}/**/*"
   artifacts:
@@ -86,9 +110,12 @@ remove_{{ cookiecutter.project_slug }}_builds:
       - $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/pytest_integrationtest.xml
 
 {{ cookiecutter.project_slug }}-master:
+  tags:
+    - ubuntu_DOCKER
   stage: deploy
   only:
-    - master
+    refs:
+      - master
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
     - echo "$SC_CI_MASTER_REGISTRY_PASSWORD" | docker login -u "$SC_CI_MASTER_REGISTRY_USER" --password-stdin $SC_CI_MASTER_REGISTRY
@@ -103,9 +130,12 @@ remove_{{ cookiecutter.project_slug }}_builds:
     url: $SC_CI_MASTER_REGISTRY
 
 {{ cookiecutter.project_slug }}-staging:
+  tags:
+    - ubuntu_DOCKER
   stage: deploy
   only:
-    - staging
+    refs:
+      - staging
   script:
     - echo "$SC_CI_MASTER_REGISTRY_PASSWORD" | docker login -u "$SC_CI_MASTER_REGISTRY_USER" --password-stdin $SC_CI_MASTER_REGISTRY
     - echo "$SC_CI_STAGING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_STAGING_REGISTRY_USER" --password-stdin $SC_CI_STAGING_REGISTRY
