@@ -18,6 +18,8 @@ before_script:
   tags:
     - ubuntu_DOCKER
   stage: build
+  tags:
+    - ubuntu_DOCKER
   except:
     refs:
       - staging
@@ -62,13 +64,15 @@ remove_{{ cookiecutter.project_slug }}_builds:
   tags:
     - ubuntu_DOCKER
   stage: test
+  tags:
+    - ubuntu_DOCKER
   except:
     refs:
       - staging
   script:
-    - pip install -r $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/tests/requirements.txt
+    - pip install -r $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/requirements.txt
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
-    - make tests-unit
+    - make unit-test
   only:
     refs:
       - branches
@@ -86,16 +90,18 @@ remove_{{ cookiecutter.project_slug }}_builds:
   tags:
     - ubuntu_DOCKER
   stage: test
+  tags:
+    - ubuntu_DOCKER
   except:
     refs:
       - staging
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
-    - pip install -r $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/tests/requirements.txt
+    - pip install -r $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/requirements.txt
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - export DOCKER_REGISTRY=$SC_CI_TEST_IMAGE_PREFIX
     - make pull-latest
-    - make tests-integration  
+    - make integration-test  
   only:
     refs:
       - branches
@@ -113,6 +119,8 @@ remove_{{ cookiecutter.project_slug }}_builds:
   tags:
     - ubuntu_DOCKER
   stage: deploy
+  tags:
+    - ubuntu_DOCKER
   only:
     refs:
       - master
@@ -133,6 +141,8 @@ remove_{{ cookiecutter.project_slug }}_builds:
   tags:
     - ubuntu_DOCKER
   stage: deploy
+  tags:
+    - ubuntu_DOCKER
   only:
     refs:
       - staging

@@ -19,7 +19,8 @@
         "python:3.6-slim",
         "python:3.7-slim",
         "python:3.8-slim",
-        "ubuntu:18.04"
+        "ubuntu:18.04",
+        "centos:7"
     ],
     "number_of_inputs": 2,
     "number_of_outputs": 1,
