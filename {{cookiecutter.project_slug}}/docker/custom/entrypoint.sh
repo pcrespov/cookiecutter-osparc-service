@@ -39,7 +39,7 @@ CONT_GROUPNAME=$(getent group "${HOST_GROUPID}" | cut --delimiter=: --fields=1)
 if [ "$HOST_USERID" -eq 0 ]
 then
     echo "Warning: Folder mounted owned by root user... adding $SC_USER_NAME to root..."
-    usermod -a -G root "$SC_USER_NAME"
+    adduser "$SC_USER_NAME" root
 else
     echo "Folder mounted owned by user $HOST_USERID:$HOST_GROUPID-'$CONT_GROUPNAME'..."
     # take host's credentials in $SC_USER_NAME
@@ -47,12 +47,12 @@ else
     then
         echo "Creating new group my$SC_USER_NAME"
         CONT_GROUPNAME=my$SC_USER_NAME
-        groupadd --gid "$HOST_GROUPID" "$CONT_GROUPNAME"
+        addgroup --gid "$HOST_GROUPID" "$CONT_GROUPNAME"
     else
         echo "group already exists"
     fi
     echo "adding $SC_USER_NAME to group $CONT_GROUPNAME..."
-    useradd -g "$SC_USER_NAME" "$CONT_GROUPNAME"
+    adduser "$SC_USER_NAME" "$CONT_GROUPNAME"
 
     echo "changing $SC_USER_NAME:$SC_USER_NAME ($SC_USER_ID:$SC_USER_ID) to $SC_USER_NAME:$CONT_GROUPNAME ($HOST_USERID:$HOST_GROUPID)"
     usermod --uid "$HOST_USERID" --gid "$HOST_GROUPID" "$SC_USER_NAME"
