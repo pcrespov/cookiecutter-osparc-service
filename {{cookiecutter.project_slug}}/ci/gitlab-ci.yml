@@ -50,7 +50,7 @@ remove_{{ cookiecutter.project_slug }}_builds:
     - export DOCKER_PROJECT=$SC_CI_PROJECT_PATH_NAME/simcore/services/{%- if cookiecutter.project_type == "computational" -%}comp{%- elif cookiecutter.project_type == "dynamic" -%}dynamic{%- endif -%}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}
     - export API_USER=$SC_CI_TESTING_REGISTRY_USER
     - export API_TOKEN=$SC_CI_TESTING_REGISTRY_PORTUS_TOKEN
-    - bash $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/CI/delete-image-from-registry-portus.bash # this will fail if registry is not available through Portus
+    - bash $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION/ci/delete-image-from-registry-portus.bash # this will fail if registry is not available through Portus
   when: manual
   environment:
     name: $CI_PROJECT_PATH_SLUG/$CI_COMMIT_REF_SLUG/{{ cookiecutter.project_slug }}

@@ -11,19 +11,20 @@
 SHELL = /bin/sh
 .DEFAULT_GOAL := help
 
-export VCS_URL:=$(shell git config --get remote.origin.url || echo unversioned)
-export VCS_REF:=$(shell git rev-parse --short HEAD || echo unversioned)
-export VCS_STATUS:=$(if $(shell git status -s || echo unversioned),'modified/untracked','clean')
-export BUILD_DATE:=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+export VCS_URL    := $(shell git config --get remote.origin.url || echo unversioned)
+export VCS_REF    := $(shell git rev-parse --short HEAD || echo unversioned)
+export VCS_STATUS := $(if $(shell git status -s || echo unversioned),'modified/untracked','clean')
+export BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-export DOCKER_REGISTRY ?= {{ cookiecutter.default_docker_registry }}
+export DOCKER_REGISTRY   ?= {{ cookiecutter.default_docker_registry }}
 export DOCKER_IMAGE_NAME ?= {{ cookiecutter.project_name.lower().replace(' ', '-') }}
-export DOCKER_IMAGE_TAG ?= $(shell cat VERSION)
+export DOCKER_IMAGE_TAG  ?= $(shell cat VERSION)
 
-export COMPOSE_INPUT_DIR := ./validation/input
+export COMPOSE_INPUT_DIR  := ./validation/input
 export COMPOSE_OUTPUT_DIR := .tmp/output
 
 APP_NAME := {{ cookiecutter.project_slug }}
+
 
 # ENVIRON ----------------------------------
 .PHONY: devenv
@@ -35,11 +36,12 @@ APP_NAME := {{ cookiecutter.project_slug }}
 		wheel \
 		setuptools
 	# tooling
-	$@/bin/pip3 install pip-tools
+	$@/bin/pip3 install \
+		pip-tools
 
 requirements.txt: .venv requirements.in
 	# freezes requirements
-	$</bin/pip-compile --upgrade --build-isolation --output-file $@ $(word2, $^)
+	$</bin/pip-compile --upgrade --build-isolation --output-file $@ $(word 2, $^)
 
 devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
@@ -47,6 +49,7 @@ devenv: .venv requirements.txt ## create a python virtual environment with tools
 	# your dev environment contains
 	@$</bin/pip3 list
 	@echo "To activate the virtual environment, run 'source $</bin/activate'"
+
 
 
 
@@ -71,7 +74,8 @@ endef
 
 
 
-# DOCKER ----------------------------------- 
+
+# DOCKER -----------------------------------
 .PHONY: build build-devel build-kit-devel build-x build-devel-x
 build build-devel build-kit build-kit-devel build-x build-devel-x: docker-compose-build.yml docker-compose-meta.yml service.cli/run ## builds images, -devel in development mode, -kit using docker buildkit, -x using docker buildX (if installed)
 	# building image local/${DOCKER_IMAGE_NAME}...
@@ -90,7 +94,8 @@ info-build: ## displays info on the built image
 
 
 
-# TESTS----------------------------------- 
+
+# TESTS-----------------------------------
 .PHONY: tests tests-unit tests-integration
 tests-unit tests-integration: ## runs integration and unit tests
 	@.venv/bin/pytest -vv \
@@ -104,7 +109,9 @@ tests-unit tests-integration: ## runs integration and unit tests
 tests: tests-unit tests-integration ## runs unit and integration tests
 
 
-# PUBLISHING ----------------------------------- 
+
+
+# PUBLISHING -----------------------------------
 define _bumpversion
 	# upgrades as $(subst $(1),,$@) version, commits and tags
 	@bump2version --verbose --list --config-file $(1) $(subst $(2),,$@)
@@ -121,8 +128,8 @@ tag-local:
 .PHONY: push push-force push-version push-latest pull-latest pull-version tag-latest tag-version
 tag-latest tag-version:
 	docker tag local/$(DOCKER_IMAGE_NAME):production $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(if $(findstring version,$@),$(DOCKER_IMAGE_TAG),latest)
-	
-version_valid = $(shell test $$(echo $(DOCKER_IMAGE_TAG) | cut --fields=1 --delimiter=.) -gt 0 > /dev/null && echo "image version is valid")
+
+version_valid  = $(shell test $$(echo $(DOCKER_IMAGE_TAG) | cut --fields=1 --delimiter=.) -gt 0 > /dev/null && echo "image version is valid")
 version_exists = $(shell DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect $(DOCKER_REGISTRY)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) > /dev/null && echo "image already exists on $(DOCKER_REGISTRY)")
 push push-force: ## pushes (resp. force) services to the registry if service not available in registry.
 	@$(if $(findstring force,$@),,\
@@ -147,7 +154,10 @@ version-integration-patch version-integration-minor version-integration-major: v
 	@$(call _bumpversion,$<,version-integration-)
 
 
-# DEVELOPMENT ---------------------------------------- 
+
+
+
+# DEVELOPMENT ----------------------------------------
 # NOTE: since using docker-compose would create the folders automatically but as root user, which is inconvenient
 define _clean_output_dirs
 	# cleaning output directory
@@ -172,7 +182,6 @@ define _docker_compose_cli
 	@docker-compose -f $(docker_compose_path) $(1)
 endef
 
-
 .PHONY: down up up-devel shell shell-devel
 up up-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts the service for testing. Devel mode mounts the folders for direct development.
 	# starting a service
@@ -184,6 +193,9 @@ shell shell-devel: $(COMPOSE_INPUT_DIR) $(COMPOSE_OUTPUT_DIR) down ## Starts a s
 
 down: .compose-development.yml ## stops the service
 	@docker-compose -f $< down
+
+
+
 
 
 
