@@ -1,4 +1,4 @@
-image: itisfoundation/ubuntu-bionic-build-docker:stable
+image: itisfoundation/ubuntu-bionic-build-docker@sha256:eaafc56563db702281b4221108b0696967b7a621cf2e09579a7f12a799819a03
 variables:
   # docker in docker variant, see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker-executor
   DOCKER_HOST: tcp://docker:2375/
@@ -11,9 +11,11 @@ services:
    - docker:dind
 before_script:
   - docker info
+
 # --------------------------------------------------------------------------------------------
 # ------- {{ cookiecutter.project_slug }}
 # --------------------------------------------------------------------------------------------
+
 {{ cookiecutter.project_slug }}-build:
   stage: build
   tags:
@@ -83,8 +85,6 @@ remove_{{ cookiecutter.project_slug }}_builds:
   tags:
     - ubuntu_DOCKER
   needs: ["{{ cookiecutter.project_slug }}-build"]
-  tags:
-    - ubuntu_DOCKER
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
