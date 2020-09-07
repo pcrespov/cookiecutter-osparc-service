@@ -22,6 +22,7 @@ before_script:
     - DOCKER_modern
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
+    - echo "$SC_CI_MASTER_REGISTRY_PASSWORD" | docker login -u "$SC_CI_MASTER_REGISTRY_USER" --password-stdin $SC_CI_MASTER_REGISTRY
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - export DOCKER_REGISTRY=$SC_CI_MASTER_REGISTRY
     - make pull-latest || true
@@ -87,6 +88,7 @@ remove_{{ cookiecutter.project_slug }}_builds:
   needs: ["{{ cookiecutter.project_slug }}-build"]
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
+    - echo "$SC_CI_MASTER_REGISTRY_PASSWORD" | docker login -u "$SC_CI_MASTER_REGISTRY_USER" --password-stdin $SC_CI_MASTER_REGISTRY
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - export DOCKER_REGISTRY=$SC_CI_TEST_IMAGE_PREFIX
     - make pull-latest
