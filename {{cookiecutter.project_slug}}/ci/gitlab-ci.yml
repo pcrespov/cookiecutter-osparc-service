@@ -19,7 +19,7 @@ before_script:
 {{ cookiecutter.project_slug }}-build:
   stage: build
   tags:
-    - ubuntu_DOCKER
+    - DOCKER_modern
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
@@ -42,7 +42,7 @@ before_script:
 remove_{{ cookiecutter.project_slug }}_builds:
   stage: build
   tags:
-    - ubuntu_DOCKER
+    - DOCKER_modern
   only:
     refs:
       - branches
@@ -62,7 +62,7 @@ remove_{{ cookiecutter.project_slug }}_builds:
   stage: test
   needs: []
   tags:
-    - ubuntu_DOCKER
+    - DOCKER_modern
   script:
     - cd $SC_CI_{{ cookiecutter.project_package_name.upper() }}_LOCATION
     - make devenv
@@ -83,7 +83,7 @@ remove_{{ cookiecutter.project_slug }}_builds:
 {{ cookiecutter.project_slug }}-integration-test:
   stage: test
   tags:
-    - ubuntu_DOCKER
+    - DOCKER_modern
   needs: ["{{ cookiecutter.project_slug }}-build"]
   script:
     - echo "$SC_CI_TESTING_REGISTRY_PASSWORD" | docker login -u "$SC_CI_TESTING_REGISTRY_USER" --password-stdin $SC_CI_TESTING_REGISTRY
@@ -110,7 +110,7 @@ remove_{{ cookiecutter.project_slug }}_builds:
   stage: deploy
   needs: ["{{ cookiecutter.project_slug }}-unit-test", "{{ cookiecutter.project_slug }}-integration-test"]
   tags:
-    - ubuntu_DOCKER
+    - DOCKER_modern
   only:
     refs:
       - master
