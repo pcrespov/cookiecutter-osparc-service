@@ -42,15 +42,33 @@ commands = (
     "ls -la .",
     "make help",
     "make devenv",
-    "make devenv build up",
-    "make devenv build-devel up-devel",
+    "make devenv; source .venv/bin/activate; make build up",
+    "make devenv; source .venv/bin/activate; build-devel up-devel",
     "make info-build",
-    "make devenv build tests",
+    "make devenv; source .venv/bin/activate; build tests",
 )
 
 
 @pytest.mark.parametrize("command", commands)
 def test_run_tests(baked_project, command: str):
     working_dir = Path(baked_project.project)
-    assert subprocess.run(command.split(), cwd=working_dir,
-                          check=True).returncode == 0
+
+    if ";" in command:
+        script_path = working_dir / "script.bash"
+        with open(script_path, "wt") as fh:
+            print("#!/bin/bash", file=fh)
+            print("# strict mode", file=fh)
+            print("set - o errexit   # abort on nonzero exitstatus", file=fh)
+            print("set - o nounset   # abort on unbound variable", file=fh)
+            print("set - o pipefail  # don't hide errors within pipes", file=fh)
+            print("IFS =$'\n\t'", file=fh)
+            print("")
+            for line in command.split(";"):
+                print(line.strip(), file=fh)
+        print(script_path, "-"*50)
+        print(script_path.read_text())
+        assert subprocess.run(["/bin/bash", script_path.name], cwd=working_dir,
+                              check=True).returncode == 0
+    else:
+        assert subprocess.run(command.split(), cwd=working_dir,
+                              check=True).returncode == 0
