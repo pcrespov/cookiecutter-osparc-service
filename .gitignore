@@ -127,7 +127,6 @@ tmp/
 *ignore*
 .tmp*
 
-# vscode configuration
-.vscode
-
-TODO.md
+# IDEs config
+.vscode/launch.json
+.vscode/settings.json
