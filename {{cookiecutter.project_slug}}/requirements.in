@@ -1,14 +1,12 @@
-# tools
-pyyaml
+git+https://github.com/pcrespov/osparc-simcore.git@master#egg=simcore-models-library&subdirectory=packages/models-library
+git+https://github.com/pcrespov/osparc-simcore.git@master#egg=simcore-service-integration&subdirectory=packages/service-integration
+
+# formatter
+black
 
 # tests
-coverage==4.5.1 # TODO: Downgraded because of a bug https://github.com/nedbat/coveragepy/issues/716
-docker
-jsonschema
-pytest~=5.3.5  # Bug in pytest-sugar https://github.com/Teemu/pytest-sugar/issues/187
-pytest-cookies
-pytest-cov
+coverage
+
+pytest
 pytest-instafail
-pytest-mock
 pytest-sugar
-pyyaml
