@@ -42,11 +42,11 @@ APP_NAME := {{ cookiecutter.project_slug }}
 
 requirements.txt: .venv requirements.in
 	# freezes requirements
-	$</bin/pip-compile --upgrade --build-isolation --output-file $@ $(word 2, $^)
+	$</bin/pip-compile --build-isolation --output-file $@ $(word 2, $^)
 
-devenv: .venv ## create a python virtual environment with tools to dev, run and tests cookie-cutter
+devenv: .venv requirements.txt ## create a python virtual environment with tools to dev, run and tests cookie-cutter
 	# installing extra tools
-	@$</bin/pip3 install -r requirements.txt
+	@$</bin/pip3 install -r $(word 2, $^)
 	# your dev environment contains
 	@$</bin/pip3 list
 	@echo "To activate the virtual environment, run 'source $</bin/activate'"
@@ -224,7 +224,7 @@ help: ## this colorful help
 
 
 .PHONY: clean clean-force
-git_clean_args = -dxf -e .vscode/ -e .venv -e .python-version
+git_clean_args = -dxf --exclude=.vscode/ --exclude=.venv --exclude=.python-version
 clean: ## cleans all unversioned files in project and temp files create by this makefile
 	# Cleaning unversioned
 	@git clean -n $(git_clean_args)
