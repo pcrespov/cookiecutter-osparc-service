@@ -2,7 +2,6 @@
 
 import json
 import logging
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -35,14 +34,14 @@ flavors = _get_cookiecutter_config()["docker_base"]
 
 @pytest.fixture(params=flavors)
 def baked_project(cookies, request):
-    return cookies.bake(extra_context={'project_slug': 'dummy-project', 'default_docker_registry': 'test.test.com', 'docker_base': request.param})
+    return cookies.bake(extra_context={'project_slug': 'DummyProject', 'project_name': 'dummy-project', 'default_docker_registry': 'test.test.com', 'docker_base': request.param})
 
 
 commands = (
     "ls -la .",
     "make help",
     "make devenv",
-    "make devenv; source .venv/bin/activate; make build up",
+    'make devenv; source .venv/bin/activate; make build up',
     "make devenv; source .venv/bin/activate; build-devel up-devel",
     "make info-build",
     "make devenv; source .venv/bin/activate; build tests",
@@ -50,7 +49,7 @@ commands = (
 
 
 @pytest.mark.parametrize("command", commands)
-def test_run_tests(baked_project, command: str):
+def test_make_workflows(baked_project, command: str):
     working_dir = Path(baked_project.project)
 
     if ";" in command:
@@ -61,10 +60,18 @@ def test_run_tests(baked_project, command: str):
             print("set - o errexit   # abort on nonzero exitstatus", file=fh)
             print("set - o nounset   # abort on unbound variable", file=fh)
             print("set - o pipefail  # don't hide errors within pipes", file=fh)
-            print("IFS =$'\n\t'", file=fh)
-            print("")
+            print(r"IFS=$'\n\t'", file=fh)
+            # https://stackoverflow.com/questions/13122137/how-to-source-virtualenv-activate-in-a-bash-script
+            print(r"PWD=`pwd`", file=fh)
+            print(r"echo $PWD", file=fh)
+            print(r"activate () {", file=fh)
+            print(r'    . "$PWD/.venv/bin/activate"', file=fh)
+            print(r"}", file=fh)
+            print("", file=fh)
             for line in command.split(";"):
                 print(line.strip(), file=fh)
+            print("", file=fh)
+
         print(script_path, "-"*50)
         print(script_path.read_text())
         assert subprocess.run(["/bin/bash", script_path.name], cwd=working_dir,
