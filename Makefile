@@ -88,7 +88,7 @@ help: ## this colorful help
 	@awk --posix 'BEGIN {FS = ":.*?## "} /^[[:alpha:][:space:]_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
-git_clean_args = -dxf --exclude=.vscode/ --exclude=.venv/ --excelude=.python
+git_clean_args = -dxf --exclude=.vscode/ --exclude=.venv/ --exclude=.python
 
 .PHONY: clean clean-force
 clean: ## cleans all unversioned files in project and temp files create by this makefile

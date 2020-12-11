@@ -1,6 +1,9 @@
 git+https://github.com/pcrespov/osparc-simcore.git@is1884/integration-library#egg=simcore-models-library&subdirectory=packages/models-library
 git+https://github.com/pcrespov/osparc-simcore.git@is1884/integration-library#egg=simcore-service-integration&subdirectory=packages/service-integration
 
+# -e ../osparc-simcore/packages/models-library
+# -e ../osparc-simcore/packages/service-integration
+
 # formatter
 black
 
