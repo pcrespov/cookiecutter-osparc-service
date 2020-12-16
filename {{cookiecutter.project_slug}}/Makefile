@@ -11,9 +11,9 @@
 SHELL = /bin/sh
 .DEFAULT_GOAL := help
 
-export VCS_URL    := $(shell git config --get remote.origin.url || echo unversioned)
-export VCS_REF    := $(shell git rev-parse --short HEAD || echo unversioned)
-export VCS_STATUS := $(if $(shell git status -s || echo unversioned),'modified/untracked','clean')
+export VCS_URL    := $(shell git config --get remote.origin.url 2> /dev/null || echo unversioned repo)
+export VCS_REF    := $(shell git rev-parse --short HEAD 2> /dev/null || echo unversioned repo)
+export VCS_STATUS := $(if $(shell git status -s 2> /dev/null || echo unversioned repo),'modified/untracked','clean')
 export BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 export DOCKER_REGISTRY   ?= {{ cookiecutter.default_docker_registry }}
